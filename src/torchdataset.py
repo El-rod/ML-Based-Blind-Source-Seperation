@@ -7,6 +7,7 @@ import numpy as np
 from tqdm import tqdm
 from torch.utils.data import Dataset
 
+
 class RFMixtureDatasetBase(Dataset):
     def __init__(self, root_dir: str):
         super().__init__()
@@ -24,7 +25,7 @@ class RFMixtureDatasetBase(Dataset):
             "sample_mix": torch.tensor(data["sample_mix"]).transpose(0, 1),
             "sample_soi": torch.tensor(data["sample_soi"]).transpose(0, 1),
         }
-    
+
 
 def get_train_val_dataset(dataset: Dataset, train_fraction: float):
     # print(len(dataset))

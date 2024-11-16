@@ -4,7 +4,7 @@ import torch.nn.functional as F
 
 from math import sqrt
 
-from .config_torchwavenet import ModelConfig
+from config_torchwavenet import ModelConfig
 
 
 Linear = nn.Linear
