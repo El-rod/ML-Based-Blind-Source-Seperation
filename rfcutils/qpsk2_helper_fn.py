@@ -1,3 +1,7 @@
+# WHO TF MADE ANOTHER SCRIPT JUST TO CHANGE
+# "samples_per_symbol" from 16 to 4
+
+
 import sionna as sn
 import numpy as np
 import tensorflow as tf
@@ -6,6 +10,7 @@ from .rrc_helper_fn import get_psf, matched_filter
 
 # Binary source to generate uniform i.i.d. bits
 binary_source = sn.utils.BinarySource()
+
 
 samples_per_symbol = 4
 span_in_symbols = 8

@@ -1,3 +1,7 @@
+# WHO TF MADE ANOTHER SCRIPT JUST TO CHANGE
+# "NUM_BITS_PER_SYMBOL" from 2 to 4
+
+
 import sionna as sn
 import numpy as np
 import tensorflow as tf
