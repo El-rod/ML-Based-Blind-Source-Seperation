@@ -1,19 +1,21 @@
 import os, sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__),'..')))
 import numpy as np
 import random
 import h5py
 from tqdm import tqdm
 import pickle
 import argparse
-
 import rfcutils
 import tensorflow as tf
 
-get_db = lambda p: 10*np.log10(p)
-get_pow = lambda s: np.mean(np.abs(s)**2, axis=-1)
-get_sinr = lambda s, i: get_pow(s)/get_pow(i)
-get_sinr_db = lambda s, i: get_db(get_sinr(s,i))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+# math functions
+get_db = lambda p: 10 * np.log10(p)
+get_pow = lambda s: np.mean(np.abs(s) ** 2, axis=-1)
+get_sinr = lambda s, i: get_pow(s) / get_pow(i)
+get_sinr_db = lambda s, i: get_db(get_sinr(s, i))
+
 
 sig_len = 40960
 default_n_per_batch = 100
@@ -21,19 +23,20 @@ all_sinr = np.arange(-30, 0.1, 3)
 
 seed_number = 0
 
+
 def get_soi_generation_fn(soi_sig_type):
     if soi_sig_type == 'QPSK':
-        generate_soi = lambda n, s_len: rfcutils.generate_qpsk_signal(n, s_len//16)
+        generate_soi = lambda n, s_len: rfcutils.generate_qpsk_signal(n, s_len // 16)
         demod_soi = rfcutils.qpsk_matched_filter_demod
     elif soi_sig_type == 'QAM16':
-        generate_soi = lambda n, s_len: rfcutils.generate_qam16_signal(n, s_len//16)
+        generate_soi = lambda n, s_len: rfcutils.generate_qam16_signal(n, s_len // 16)
         demod_soi = rfcutils.qam16_matched_filter_demod
-    elif soi_sig_type ==  'QPSK2':
-        generate_soi = lambda n, s_len: rfcutils.generate_qpsk2_signal(n, s_len//4)
+    elif soi_sig_type == 'QPSK2':
+        generate_soi = lambda n, s_len: rfcutils.generate_qpsk2_signal(n, s_len // 4)
         demod_soi = rfcutils.qpsk2_matched_filter_demod
     elif soi_sig_type == 'OFDMQPSK':
-        generate_soi = lambda n, s_len: rfcutils.generate_ofdm_signal(n, s_len//80)
-        _,_,_,RES_GRID = rfcutils.generate_ofdm_signal(1, sig_len//80)
+        generate_soi = lambda n, s_len: rfcutils.generate_ofdm_signal(n, s_len // 80)
+        _, _, _, RES_GRID = rfcutils.generate_ofdm_signal(1, sig_len // 80)
         demod_soi = lambda s: rfcutils.ofdm_demod(s, RES_GRID)
     else:
         raise Exception("SOI Type not recognized")
@@ -41,9 +44,9 @@ def get_soi_generation_fn(soi_sig_type):
 
 
 def generate_demod_testmixture(soi_type, interference_sig_type, n_per_batch=default_n_per_batch):
-
     generate_soi, demod_soi = get_soi_generation_fn(soi_type)
-    with h5py.File(os.path.join('dataset', 'interferenceset_frame', interference_sig_type+'_raw_data.h5'),'r') as data_h5file:
+    with h5py.File(os.path.join('dataset', 'interferenceset_frame', interference_sig_type + '_raw_data.h5'),
+                   'r') as data_h5file:
         sig_data = np.array(data_h5file.get('dataset'))
         sig_type_info = data_h5file.get('sig_type')[()]
         if isinstance(sig_type_info, bytes):
@@ -60,16 +63,16 @@ def generate_demod_testmixture(soi_type, interference_sig_type, n_per_batch=defa
 
         sig_target = sig1[:, :sig_len]
 
-        rand_start_idx2 = np.random.randint(sig2.shape[1]-sig_len, size=sig2.shape[0])
-        inds2 = tf.cast(rand_start_idx2.reshape(-1,1) + np.arange(sig_len).reshape(1,-1), tf.int32)
+        rand_start_idx2 = np.random.randint(sig2.shape[1] - sig_len, size=sig2.shape[0])
+        inds2 = tf.cast(rand_start_idx2.reshape(-1, 1) + np.arange(sig_len).reshape(1, -1), tf.int32)
         sig_interference = tf.experimental.numpy.take_along_axis(sig2, inds2, axis=1)
 
         # Interference Coefficient
-        rand_gain = np.sqrt(10**(-sinr/10)).astype(np.float32)
-        rand_phase = tf.random.uniform(shape=[sig_interference.shape[0],1])
+        rand_gain = np.sqrt(10 ** (-sinr / 10)).astype(np.float32)
+        rand_phase = tf.random.uniform(shape=[sig_interference.shape[0], 1])
         rand_gain = tf.complex(rand_gain, tf.zeros_like(rand_gain))
         rand_phase = tf.complex(rand_phase, tf.zeros_like(rand_phase))
-        coeff = rand_gain * tf.math.exp(1j*2*np.pi*rand_phase)
+        coeff = rand_gain * tf.math.exp(1j * 2 * np.pi * rand_phase)
 
         sig_mixture = sig_target + sig_interference * coeff
 
@@ -78,7 +81,10 @@ def generate_demod_testmixture(soi_type, interference_sig_type, n_per_batch=defa
         all_bits1.append(bits1)
 
         actual_sinr = get_sinr_db(sig_target, sig_interference * coeff)
-        meta_data.append(np.vstack(([rand_gain.numpy().real for _ in range(n_per_batch)], [sinr for _ in range(n_per_batch)], actual_sinr, [soi_type for _ in range(n_per_batch)], [interference_sig_type for _ in range(n_per_batch)])))
+        meta_data.append(np.vstack(([rand_gain.numpy().real for _ in range(n_per_batch)],
+                                    [sinr for _ in range(n_per_batch)], actual_sinr,
+                                    [soi_type for _ in range(n_per_batch)],
+                                    [interference_sig_type for _ in range(n_per_batch)])))
 
     with tf.device('CPU'):
         all_sig_mixture = tf.concat(all_sig_mixture, axis=0).numpy()
@@ -86,7 +92,10 @@ def generate_demod_testmixture(soi_type, interference_sig_type, n_per_batch=defa
         all_bits1 = tf.concat(all_bits1, axis=0).numpy()
 
     meta_data = np.concatenate(meta_data, axis=1).T
-    pickle.dump((all_sig_mixture, all_sig1, all_bits1, meta_data), open(os.path.join('dataset', f'Training_Dataset_{soi_type}_{interference_sig_type}.pkl'), 'wb'), protocol=4)
+    pickle.dump((all_sig_mixture, all_sig1, all_bits1, meta_data),
+                open(os.path.join('dataset', f'Training_Dataset_{soi_type}_{interference_sig_type}.pkl'), 'wb'),
+                protocol=4)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Generate Synthetic Dataset')

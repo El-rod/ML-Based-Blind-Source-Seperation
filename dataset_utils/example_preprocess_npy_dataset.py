@@ -4,8 +4,9 @@ import h5py
 import numpy as np
 from tqdm import tqdm
 
-main_folder = os.path.abspath(os.path.join(os.path.dirname(__file__),'..'))
+main_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 print(main_folder)
+
 
 def preprocess_dataset(root_dir: str, save_dir: str) -> None:
     save_dir = os.path.join(save_dir, os.path.basename(root_dir))
@@ -27,5 +28,5 @@ def preprocess_dataset(root_dir: str, save_dir: str) -> None:
 
 if __name__ == "__main__":
     dataset_type = sys.argv[1]
-    preprocess_dataset(root_dir=f'{main_folder}/dataset/Dataset_{dataset_type}_Mixture', 
+    preprocess_dataset(root_dir=f'{main_folder}/dataset/Dataset_{dataset_type}_Mixture',
                        save_dir=f'{main_folder}/npydataset/')

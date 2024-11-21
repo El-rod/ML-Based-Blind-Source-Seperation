@@ -18,10 +18,11 @@ MIT, “RF Challenge - AI Accelerator.” https://rfchallenge.mit.edu/
 soi_type = 'QPSK'
 interference_sig_type = 'CommSignal2'
 
+
 class DatasetQpskCommsignal2Mixture(tfds.core.GeneratorBasedBuilder):
     VERSION = tfds.core.Version('0.2.0')
     RELEASE_NOTES = {
-      '0.2.0': 'RFChallenge 2023 release.',
+        '0.2.0': 'RFChallenge 2023 release.',
     }
 
     def _info(self) -> tfds.core.DatasetInfo:
@@ -49,12 +50,12 @@ class DatasetQpskCommsignal2Mixture(tfds.core.GeneratorBasedBuilder):
     def _generate_examples(self, path):
         """Yields examples."""
         for f in glob.glob(os.path.join(path, '*.h5')):
-            with h5py.File(f,'r') as h5file:
+            with h5py.File(f, 'r') as h5file:
                 mixture = np.array(h5file.get('mixture'))
                 target = np.array(h5file.get('target'))
                 sig_type = h5file.get('sig_type')[()]
                 if isinstance(sig_type, bytes):
-                    sig_type = sig_type.decode("utf-8") 
+                    sig_type = sig_type.decode("utf-8")
             for i in range(mixture.shape[0]):
                 yield f'data_{f}_{i}', {
                     'mixture': mixture[i],
