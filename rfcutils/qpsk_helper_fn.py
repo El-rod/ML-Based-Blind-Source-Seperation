@@ -2,7 +2,7 @@ import sionna as sn
 import numpy as np
 import tensorflow as tf
 
-from .rrc_helper_fn import get_psf, matched_filter
+from rrc_helper_fn import get_psf, matched_filter
 
 
 # Binary source to generate uniform i.i.d. bits (random binary tensors)
@@ -91,4 +91,6 @@ def modulate_qpsk_signal(info_bits, ebno_db=None):
         y = awgn_channel([x_rrcf, no])
     y = y * tf.math.sqrt(tf.cast(samples_per_symbol, tf.complex64))
     return y, x, info_bits, constellation
+
+
 
