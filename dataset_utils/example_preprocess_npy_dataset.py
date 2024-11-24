@@ -1,3 +1,9 @@
+"""
+Used in conjunction with the Torch WaveNet training scripts;
+the HDF5 files are processed into separate npy files (one file per mixture).
+An associated dataloader is supplied within the PyTorch baseline code.
+"""
+
 import os, sys
 import glob
 import h5py
