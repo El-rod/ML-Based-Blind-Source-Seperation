@@ -1,3 +1,9 @@
+"""
+python sampletest_evaluationscript.py [SOI Type] [Interference Type] [TestSet Identifier] [Method ID String]
+[Method ID String] is your submission's unique identifier---refer to submission specifications.
+Utilize this script to assess the outputs generated from the inference script.
+"""
+
 import os
 import sys
 import numpy as np
