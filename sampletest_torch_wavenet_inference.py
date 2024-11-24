@@ -1,3 +1,10 @@
+"""
+python sampletest_torch_wavenet_inference.py [SOI Type] [Interference Type] [TestSet Identifier]
+(Default: Use TestSet1Example for [TestSet Identifier])
+Scripts that leverage the supplied baseline methods (Modified WaveNet on PyTorch) for inference.
+"""
+
+
 import os, sys
 import numpy as np
 from tqdm import tqdm
