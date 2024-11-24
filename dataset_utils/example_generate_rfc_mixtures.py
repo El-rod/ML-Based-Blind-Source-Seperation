@@ -1,3 +1,11 @@
+"""
+Another python script that creates 240,000 sample mixtures with varying random target SINR levels
+(ranging between -33 dB and 3 dB).
+For each signal mixture configuration, the output is saved as 60 HDF5 files, each containing 4,000 mixtures.
+This is the organizers' choice when generating the training set
+(for better generalization properties, while setting aside the metadata for implementation simplicity).
+"""
+
 import os, sys
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))

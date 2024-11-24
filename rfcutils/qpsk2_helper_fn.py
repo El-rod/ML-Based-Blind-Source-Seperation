@@ -3,10 +3,9 @@
 
 
 import sionna as sn
-import numpy as np
 import tensorflow as tf
 
-from .rrc_helper_fn import get_psf, matched_filter
+from .rrc_helper_fn import matched_filter
 
 # Binary source to generate uniform i.i.d. bits
 binary_source = sn.utils.BinarySource()

@@ -1,8 +1,7 @@
 import sionna as sn
-import numpy as np
 import tensorflow as tf
 
-from rrc_helper_fn import get_psf, matched_filter
+from .rrc_helper_fn import matched_filter
 
 
 # Binary source to generate uniform i.i.d. bits (random binary tensors)
@@ -46,7 +45,7 @@ def qpsk_matched_filter_demod(sig, no=1e-4, soft_demod=False):
     """
     sig: signal (the received symbols)
     no: N0 – noise variance estimate
-    soft_demod: ???
+    soft_demod: (relates to BER, to be learned later in semester)
     """
     # x after matched filter
     x_mf = matched_filter(sig, samples_per_symbol, span_in_symbols, beta)
@@ -60,7 +59,6 @@ def qpsk_matched_filter_demod(sig, no=1e-4, soft_demod=False):
     # log likelihood ratio
     llr = demapper([x_hat, no])
     # demodulation
-    # TO UNDERSTAND
     if soft_demod:
         return llr, x_hat
     return tf.cast(llr > 0, tf.float32), x_hat

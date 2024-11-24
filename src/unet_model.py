@@ -1,5 +1,4 @@
 import tensorflow as tf
-import tensorflow.keras as k
 from tensorflow.keras import layers
 from tensorflow.keras.models import Model
 

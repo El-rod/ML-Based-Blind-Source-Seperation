@@ -1,3 +1,11 @@
+"""
+A python script for generating example mixtures for training;
+this script creates a training set that is more aligned with the TestSet’s specifications
+(e.g., focusing solely on the 11 discrete target SINR levels).
+This script saves a pickle file dataset/Training_Dataset_[SOI Type]_[Interference Type].pkl'
+that contains all_sig_mixture, all_sig1_groundtruth, all_bits1_groundtruth, meta_data.
+"""
+
 import os, sys
 import numpy as np
 import random

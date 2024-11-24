@@ -1,15 +1,8 @@
-import os, sys
-
-import numpy as np
-import random
-import h5py
-import argparse
-
-import rfcutils
+import os
+import sys
 import tensorflow_datasets as tfds
 import tensorflow as tf
 
-import glob, h5py
 
 from src import unet_model as unet
 from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping

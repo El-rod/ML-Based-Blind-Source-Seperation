@@ -27,6 +27,7 @@ def preprocess_dataset(root_dir: str, save_dir: str) -> None:
 
 
 if __name__ == "__main__":
-    dataset_type = sys.argv[1]
+    # dataset_type = sys.argv[1]
+    dataset_type = 'QPSK'
     preprocess_dataset(root_dir=f'{main_folder}/dataset/Dataset_{dataset_type}_Mixture',
                        save_dir=f'{main_folder}/npydataset/')

@@ -1,3 +1,13 @@
+"""
+This script generates a new evaluation set
+(default name: TestSet1Example)
+based on the raw interference dataset of TestSet1.
+Participants can employ this for cross-checking.
+The produced outputs include a mixture numpy array,
+a metadata numpy array (similar to what's given in TestSet1Mixture), and a ground truth file.
+Participants can also change the seed number to generate new instances of such example test sets.
+"""
+
 import os, sys
 import numpy as np
 import random
@@ -13,14 +23,24 @@ get_pow = lambda s: np.mean(np.abs(s) ** 2, axis=-1)
 get_sinr = lambda s, i: get_pow(s) / get_pow(i)
 get_sinr_db = lambda s, i: get_db(get_sinr(s, i))
 
+# 40960 complex-valued samples
 sig_len = 40960
+# with 100 test cases per target SINR level
 n_per_batch = 100
+# Test mixtures are provided for various target SINR levels,
+# ranging from −30dB to 0dB at 3dB steps (a total of 11 SINR levels)
 all_sinr = np.arange(-30, 0.1, 3)
 
 seed_number = 0
 
 
 def get_soi_generation_fn(soi_sig_type):
+    """
+    soi_sig_type: Signal of Interest
+
+    returns the modulate and demodulate function
+    of the inputted signal type from rfcutils
+    """
     if soi_sig_type == 'QPSK':
         generate_soi = lambda n, s_len: rfcutils.generate_qpsk_signal(n, s_len // 16)
         demod_soi = rfcutils.qpsk_matched_filter_demod
@@ -40,7 +60,14 @@ def get_soi_generation_fn(soi_sig_type):
 
 
 def generate_demod_testmixture(soi_type, interference_sig_type):
+    """
+    soi_type: Signal of Interest type
+    interference_sig_type: Interference Signal type
+
+    generates the test-mixture and saves it onto a folder
+    """
     generate_soi, demod_soi = get_soi_generation_fn(soi_type)
+    # import interference signal data
     with h5py.File(os.path.join('dataset', 'testset1_frame', interference_sig_type + '_test1_raw_data.h5'),
                    'r') as data_h5file:
         sig_data = np.array(data_h5file.get('dataset'))
@@ -63,13 +90,14 @@ def generate_demod_testmixture(soi_type, interference_sig_type):
         inds2 = tf.cast(rand_start_idx2.reshape(-1, 1) + np.arange(sig_len).reshape(1, -1), tf.int32)
         sig_interference = tf.experimental.numpy.take_along_axis(sig2, inds2, axis=1)
 
-        # Interference Coefficient
+        # generate random interference coefficient
         rand_gain = np.sqrt(10 ** (-sinr / 10)).astype(np.float32)
         rand_phase = tf.random.uniform(shape=[sig_interference.shape[0], 1])
         rand_gain = tf.complex(rand_gain, tf.zeros_like(rand_gain))
         rand_phase = tf.complex(rand_phase, tf.zeros_like(rand_phase))
         coeff = rand_gain * tf.math.exp(1j * 2 * np.pi * rand_phase)
 
+        # add the interference to generated SOI
         sig_mixture = sig_target + sig_interference * coeff
 
         all_sig_mixture.append(sig_mixture)
