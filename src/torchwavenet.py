@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+# there is also nn.ReLU so F is rather redundant for only F.relu
 import torch.nn.functional as F
 
 from math import sqrt
@@ -24,10 +25,10 @@ def silu(x):
 
 class ResidualBlock(nn.Module):
     def __init__(self, residual_channels, dilation):
-        '''
-        :param residual_channels: audio conv
-        :param dilation: audio conv dilation
-        '''
+        """
+        residual_channels: signal conv
+        dilation: signal conv dilation
+        """
         super().__init__()
         self.dilated_conv = Conv1d(
             residual_channels, 2 * residual_channels, 

@@ -16,13 +16,30 @@ import os
 
 import numpy as np
 import torch
+
+# The torch.distributed package provides PyTorch support
+# and communication primitives for multiprocess parallelism
+# across several computation nodes running on one or more machines.
 import torch.distributed as dist
+
 import torch.nn as nn
 
+# converts the dataclass obj to a dict
 from dataclasses import asdict
+
+# This container provides data parallelism by synchronizing gradients across each model replica.
 from torch.nn.parallel import DistributedDataParallel
+
+# DistributedSampler: Sampler that restricts data loading to a subset of the dataset.
+#                     It is especially useful in conjunction with nn.parallel.DistributedDataParallel
 from torch.utils.data import DataLoader, DistributedSampler
+
+# SummaryWriter: The SummaryWriter class provides a high-level API to create an event file in a given directory
+#                and add summaries and events to it. The class updates the file contents asynchronously.
+#                This allows a training program to call methods to add data to the file directly from the training loop,
+#                without slowing down training.
 from torch.utils.tensorboard import SummaryWriter
+
 from tqdm import tqdm
 from typing import Dict
 
@@ -41,7 +58,11 @@ def _nested_map(struct, map_fn):
     return map_fn(struct)
 
 
-def view_as_complex(x): 
+def view_as_complex(x):
+    """
+    breaks up inserted tensor x
+    from two real dimensions to one complex dimension
+    """
     x = x[:, 0, ...] + 1j * x[:, 1, ...]
     return x
 
@@ -50,7 +71,7 @@ class WaveLearner:
     def __init__(self, cfg: Config, model: nn.Module, rank: int):
         self.cfg = cfg
 
-        # Store some import variables
+        # Store some import variables <- priori comment
         self.model_dir = cfg.model_dir
         self.distributed = cfg.distributed.distributed
         self.world_size = cfg.distributed.world_size

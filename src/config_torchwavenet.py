@@ -10,6 +10,9 @@ OmegaConf.register_new_resolver(
 
 @dataclass
 class ModelConfig:
+    """
+    WaveNet pytorch model parameters configuration
+    """
     input_channels: int = 2
     residual_layers: int = 30
     residual_channels: int = 64
@@ -18,6 +21,9 @@ class ModelConfig:
 
 @dataclass
 class DataConfig:
+    """
+    WaveNet pytorch dataset parameters configuration
+    """
     root_dir: str = MISSING
     batch_size: int = 16
     num_workers: int = 4
@@ -26,12 +32,19 @@ class DataConfig:
 
 @dataclass
 class DistributedConfig:
+    """
+    WaveNet pytorch process distributed parameters configuration
+    """
     distributed: bool = False
+    # Number of processes participating in distributed training
     world_size: int = 2
 
 
 @dataclass
 class TrainerConfig:
+    """
+    WaveNet pytorch training parameters configuration
+    """
     learning_rate: float = 2e-4
     max_steps: int = 1000
     max_grad_norm: Optional[float] = None
@@ -44,6 +57,10 @@ class TrainerConfig:
 
 @dataclass
 class Config:
+    """
+    dataclass that stores all types of configuration dataclasses
+    (nested structured configs)
+    """
     model_dir: str = MISSING
 
     model: ModelConfig = ModelConfig()
@@ -53,7 +70,17 @@ class Config:
 
 
 def parse_configs(cfg: DictConfig, cli_cfg: Optional[DictConfig] = None) -> DictConfig:
+    """
+    cfg: Config Dictionary
+    cli_cfg: Config from CLI (command line interface)
+
+    returns ConfigDict of inserted ConfigDict merged with
+    content of sys.arg (command line arguments)
+    """
+    # Structured configs are used to create OmegaConf configuration object with runtime type safety.
     base_cfg = OmegaConf.structured(Config)
+    # Merging configurations enables the creation of reusable configuration files
+    # for each logical component instead of a single config file for each variation of your task.
     merged_cfg = OmegaConf.merge(base_cfg, cfg)
     if cli_cfg is not None:
         merged_cfg = OmegaConf.merge(merged_cfg, cli_cfg)
