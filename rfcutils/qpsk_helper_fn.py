@@ -36,6 +36,8 @@ def generate_qpsk_signal(batch_size, num_symbols, ebno_db=None):
     batch_size: how many
     num_symbols: number of symbols
     ebno_db: energy per bit to noise power spectral density ratio
+
+    returns QPSK signal with the specified parameters
     """
     bits = binary_source([batch_size, num_symbols * NUM_BITS_PER_SYMBOL])  # Blocklength
     return modulate_qpsk_signal(bits, ebno_db)
@@ -46,6 +48,8 @@ def qpsk_matched_filter_demod(sig, no=1e-4, soft_demod=False):
     sig: signal (the received symbols)
     no: N0 – noise variance estimate
     soft_demod: (relates to BER, to be learned later in semester)
+
+    returns demodulated QPSK signal (using matched filter)
     """
     # x after matched filter
     x_mf = matched_filter(sig, samples_per_symbol, span_in_symbols, beta)
@@ -66,8 +70,10 @@ def qpsk_matched_filter_demod(sig, no=1e-4, soft_demod=False):
 
 def modulate_qpsk_signal(info_bits, ebno_db=None):
     """
-    info_bits:
+    info_bits: transmitted information bits to be modulated
     ebno_db: energy per bit to noise power spectral density ratio
+
+    returns a modulated QPSK signal of the inserted bits
     """
     # map info_bits to points of a constellation.
     x = mapper(info_bits)
