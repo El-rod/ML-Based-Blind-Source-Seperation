@@ -15,6 +15,14 @@ print(main_folder)
 
 
 def preprocess_dataset(root_dir: str, save_dir: str) -> None:
+    """
+    root_dir: root parent directory to save the dataset
+    save_dir: save folder directory name
+
+    saves mixture as numpy file,
+    in the format of a dictionary with pytorch tensors:
+    sample_mix, sample_soi
+    """
     save_dir = os.path.join(save_dir, os.path.basename(root_dir))
     os.makedirs(save_dir, exist_ok=True)
 
