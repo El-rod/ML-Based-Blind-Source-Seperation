@@ -1,4 +1,4 @@
-# WHO TF MADE ANOTHER SCRIPT JUST TO CHANGE
+# copy of qpsk_helper_fn.py with the small change of
 # "NUM_BITS_PER_SYMBOL" from 2 to 4
 
 
