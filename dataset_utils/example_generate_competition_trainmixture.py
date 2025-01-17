@@ -13,10 +13,12 @@ import h5py
 from tqdm import tqdm
 import pickle
 import argparse
-import rfcutils
 import tensorflow as tf
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+import rfcutils
+
 
 # math functions
 get_db = lambda p: 10 * np.log10(p)

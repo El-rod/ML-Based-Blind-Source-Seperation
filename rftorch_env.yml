@@ -176,9 +176,6 @@ dependencies:
     - opt-einsum==3.3.0
     - promise==2.3
     - protobuf==3.19.6
-    - psutil==5.9.5
-    - pyasn1==0.4.8
-    - pyasn1-modules==0.2.8
     - pysimplegui==4.0.0
     - pywavelets==1.3.0
     - pyyaml==6.0
@@ -215,4 +212,4 @@ dependencies:
     - werkzeug==2.2.2
     - wrapt==1.14.1
     - wurlitzer==3.0.2
-prefix: /home/gridsan/glcf411/.conda/envs/rftorch
+#prefix: /home/arielro1/.conda/envs/rftorch

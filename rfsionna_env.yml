@@ -171,4 +171,4 @@ dependencies:
     - wheel==0.37.1
     - wrapt==1.14.1
     - zipp==3.8.1
-prefix: /home/gridsan/glcf411/.conda/envs/rfsionna
+#prefix: /home/gridsan/glcf411/.conda/envs/rfsionna
