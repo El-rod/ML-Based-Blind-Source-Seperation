@@ -103,16 +103,16 @@ def generate_demod_testmixture(soi_type, interference_sig_type, n_per_batch=defa
 
     meta_data = np.concatenate(meta_data, axis=1).T
     pickle.dump((all_sig_mixture, all_sig1, all_bits1, meta_data),
-                open(os.path.join('dataset', f'Training_Dataset_{soi_type}_{interference_sig_type}.pkl'), 'wb'),
+                open(os.path.join('dataset', f'Dataset_Seed{seed_number}_{soi_type}_{interference_sig_type}.pkl'), 'wb'),
                 protocol=4)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Generate Synthetic Dataset')
     parser.add_argument('-b', '--n_per_batch', default=100, type=int, help='')
-    parser.add_argument('--random_seed', default=0, type=int, help='')
-    parser.add_argument('--soi_sig_type', help='')
-    parser.add_argument('--interference_sig_type', help='')
+    parser.add_argument('-seed', '--random_seed', default=0, type=int, help='')
+    parser.add_argument('-soi', '--soi_sig_type', help='')
+    parser.add_argument('-i_sig', '--interference_sig_type', help='')
 
     args = parser.parse_args()
 

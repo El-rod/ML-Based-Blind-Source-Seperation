@@ -7,14 +7,14 @@ n_per_batch = 32
 sig_len = 40960
 soi_type = "QPSK"
 interference_sig_type = "CommSignal2"
-testset_identifier = 'Test'
+testset_identifier = 'Seed0'
 import pickle
 
 
-def run_demod_test(sig1_est, bit1_est):
+def run_demod_test(sig1_est, bit1_est, soi_type='QPSK', interference_sig_type='CommSignal2', testset_identifier='Seed0'):
     # For SampleEvalSet
 
-    with open('dataset/Training_Dataset_QPSK_CommSignal2.pkl', 'rb') as f:
+    with open(f'dataset/Dataset_{testset_identifier}_{soi_type}_{interference_sig_type}.pkl', 'rb') as f:
         all_sig_mixture_groundtruth, all_sig1, all_bits1, _ = pickle.load(f)
 
     # Evaluation pipeline
@@ -45,7 +45,7 @@ def run_demod_test(sig1_est, bit1_est):
 for soi_type in ['QPSK']:
     for interference_sig_type in ['CommSignal2']:
         all_mse, all_ber = {}, {}
-        for id_string in ['Default_TF_UNet']:
+        for id_string in ['Default_TF_UNet' ,'Default_Torch_WaveNet']: #'Default_Torch_WaveNet' 'Default_TF_UNet'
             sig1_est = np.load(os.path.join('outputs',
                                             f'{id_string}_{testset_identifier}_estimated_soi_{soi_type}_{interference_sig_type}.npy'))
             bit1_est = np.load(os.path.join('outputs',
