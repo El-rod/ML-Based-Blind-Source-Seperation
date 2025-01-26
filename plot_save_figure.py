@@ -3,15 +3,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 all_sinr = np.arange(-30, 0.1, 3)
-n_per_batch = 32
+n_per_batch = 100
 sig_len = 40960
 soi_type = "QPSK"
 interference_sig_type = "CommSignal2"
-testset_identifier = 'Seed0'
 import pickle
 
 
-def run_demod_test(sig1_est, bit1_est, soi_type='QPSK', interference_sig_type='CommSignal2', testset_identifier='Seed0'):
+def run_demod_test(sig1_est, bit1_est, soi_type='QPSK', interference_sig_type='CommSignal2',
+                   testset_identifier='Seed0'):
     # For SampleEvalSet
 
     with open(f'dataset/Dataset_{testset_identifier}_{soi_type}_{interference_sig_type}.pkl', 'rb') as f:
@@ -45,14 +45,22 @@ def run_demod_test(sig1_est, bit1_est, soi_type='QPSK', interference_sig_type='C
 for soi_type in ['QPSK']:
     for interference_sig_type in ['CommSignal2']:
         all_mse, all_ber = {}, {}
-        for id_string in ['Default_TF_UNet' ,'Default_Torch_WaveNet']: #'Default_Torch_WaveNet' 'Default_TF_UNet'
-            sig1_est = np.load(os.path.join('outputs',
-                                            f'{id_string}_{testset_identifier}_estimated_soi_{soi_type}_{interference_sig_type}.npy'))
-            bit1_est = np.load(os.path.join('outputs',
-                                            f'{id_string}_{testset_identifier}_estimated_bits_{soi_type}_{interference_sig_type}.npy'))
-            mse_mean, ber_mean = run_demod_test(sig1_est, bit1_est)
-            all_mse[id_string] = mse_mean
-            all_ber[id_string] = ber_mean
+        for id_string in ['Default_TF_UNet', 'Default_Torch_WaveNet']:  #'Default_Torch_WaveNet' 'Default_TF_UNet'
+            for testset_identifier in ['Seed0', 'Seed1', 'Seed2', 'Seed3', 'Seed4', 'Seed5']:
+                sig1_est = np.load(os.path.join('outputs',
+                                                f'{id_string}_{testset_identifier}_estimated_soi_{soi_type}_{interference_sig_type}.npy'))
+                bit1_est = np.load(os.path.join('outputs',
+                                                f'{id_string}_{testset_identifier}_estimated_bits_{soi_type}_{interference_sig_type}.npy'))
+                mse_mean, ber_mean = run_demod_test(sig1_est, bit1_est, soi_type, interference_sig_type,
+                                                    testset_identifier)
+                if testset_identifier == 'Seed0':
+                    all_mse[id_string] = mse_mean
+                    all_ber[id_string] = ber_mean
+                else:
+                    all_mse[id_string] = np.vstack((mse_mean, all_mse[id_string]))
+                    all_ber[id_string] = np.vstack((ber_mean, all_ber[id_string]))
+            all_mse[id_string] = np.average(all_mse[id_string], axis=0)
+            all_ber[id_string] = np.average(all_ber[id_string], axis=0)
 
         plt.figure()
         for id_string in all_mse.keys():

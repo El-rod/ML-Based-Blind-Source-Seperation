@@ -17,7 +17,7 @@ testset_identifier = 'Seed0'
 with open(f'dataset/Dataset_{testset_identifier}_{soi_type}_{interference_sig_type}.pkl', 'rb') as f:
     all_sig_mixture, all_sig1_groundtruth, all_bits1_groundtruth, meta_data = pickle.load(f)
 all_sinr = np.arange(-30, 0.1, 3)
-n_per_batch = 32
+n_per_batch = 100
 sig_len = 40960
 
 from rfcutils.qpsk_helper_fn import qpsk_matched_filter_demod

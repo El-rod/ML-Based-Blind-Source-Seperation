@@ -1,4 +1,4 @@
-from dataclasses import MISSING, asdict, dataclass
+from dataclasses import MISSING, asdict, dataclass, field
 from datetime import datetime
 from typing import Optional
 
@@ -63,10 +63,15 @@ class Config:
     """
     model_dir: str = MISSING
 
-    model: ModelConfig = ModelConfig()
-    data: DataConfig = DataConfig(root_dir="")
-    distributed: DistributedConfig = DistributedConfig()
-    trainer: TrainerConfig = TrainerConfig()
+    # model: ModelConfig = ModelConfig()
+    # data: DataConfig = DataConfig(root_dir="")
+    # distributed: DistributedConfig = DistributedConfig()
+    # trainer: TrainerConfig = TrainerConfig()
+
+    model: ModelConfig = field(default_factory=ModelConfig)
+    data: DataConfig = field(default_factory=lambda: DataConfig(root_dir=""))
+    distributed: DistributedConfig = field(default_factory=DistributedConfig)
+    trainer: TrainerConfig = field(default_factory=TrainerConfig)
 
 
 def parse_configs(cfg: DictConfig, cli_cfg: Optional[DictConfig] = None) -> DictConfig:
