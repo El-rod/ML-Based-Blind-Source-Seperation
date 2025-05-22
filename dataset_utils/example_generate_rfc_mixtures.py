@@ -108,10 +108,10 @@ if __name__ == "__main__":
     parser.add_argument('-n', '--n_examples', default=240000, type=int, help='')
     parser.add_argument('-b', '--n_per_batch', default=4000, type=int, help='')
     parser.add_argument('-d', '--dataset', default='train', help='')
-    parser.add_argument('--random_seed', default=0, type=int, help='')
+    parser.add_argument('-seed' ,'--random_seed', default=0, type=int, help='')
     parser.add_argument('-v', '--verbosity', default=1, help='')
-    parser.add_argument('--soi_sig_type', help='')
-    parser.add_argument('--interference_sig_type', help='')
+    parser.add_argument('-s','--soi_sig_type', help='')
+    parser.add_argument('-i','--interference_sig_type', help='')
     args = parser.parse_args()
 
     soi_type = args.soi_sig_type
@@ -126,7 +126,12 @@ if __name__ == "__main__":
 
     # Generate synthetic dataset based on input arguments
     dataset_type = args.dataset
-    foldername = os.path.join('dataset', f'Dataset_{soi_type}_{interference_sig_type}_Mixture')
+    #foldername = os.path.join('dataset', f'Dataset_{soi_type}_{interference_sig_type}_Mixture')
+
+    type1 = 'CommSignal2'
+    type2 = 'CommSignal5G1'
+
+    foldername = os.path.join('dataset', f'Dataset_{soi_type}_{type1}+{type2}')
 
     generate_dataset(sig_data, soi_type, interference_sig_type, args.sig_len, args.n_examples, args.n_per_batch,
                      foldername, args.random_seed, args.verbosity)

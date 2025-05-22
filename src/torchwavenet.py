@@ -1,3 +1,7 @@
+"""
+RFC PyTorch WaveNet model
+"""
+
 import torch
 import torch.nn as nn
 # there is also nn.ReLU so F is rather redundant for only F.relu

@@ -1,7 +1,14 @@
+"""
+RFC TensorFlow UNet model
+"""
+
 import tensorflow as tf
 from tensorflow.keras import layers
 from tensorflow.keras.models import Model
 
+# added for retestable random initialization
+SEED = 0
+tf.random.set_seed(SEED)
 
 def get_unet_model(input_shape, k_sz=3, long_k_sz=101, lr=0.0003, k_neurons=32):
     n_window = input_shape[0]

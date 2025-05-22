@@ -19,13 +19,11 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import rfcutils
 
-
 # math functions
 get_db = lambda p: 10 * np.log10(p)
 get_pow = lambda s: np.mean(np.abs(s) ** 2, axis=-1)
 get_sinr = lambda s, i: get_pow(s) / get_pow(i)
 get_sinr_db = lambda s, i: get_db(get_sinr(s, i))
-
 
 sig_len = 40960
 default_n_per_batch = 100
@@ -94,14 +92,38 @@ def generate_demod_testmixture(soi_type, interference_sig_type, n_per_batch=defa
                                     [soi_type for _ in range(n_per_batch)],
                                     [interference_sig_type for _ in range(n_per_batch)])))
 
+    return all_sig_mixture, all_sig1, all_bits1, meta_data
+
+
+def generate_combined_testmixture(soi_type, interference_type1, interference_type2, p, n_per_batch=default_n_per_batch,
+                                  seed=0):
+    all_sig_mixture, all_sig, all_bits, meta_data = generate_demod_testmixture(soi_type, interference_type1,
+                                                                               round(n_per_batch * p), seed)
+    all_sig_mixture2, all_sig2, all_bits2, meta_data2 = generate_demod_testmixture(soi_type, interference_type2,
+                                                                                   round(n_per_batch * (1 - p)), seed)
+    all_sig_mixture.extend(all_sig_mixture2)
+    all_sig.extend(all_sig2)
+    all_bits.extend(all_bits2)
+    meta_data.extend(meta_data2)
+
     with tf.device('CPU'):
         all_sig_mixture = tf.concat(all_sig_mixture, axis=0).numpy()
-        all_sig1 = tf.concat(all_sig1, axis=0).numpy()
-        all_bits1 = tf.concat(all_bits1, axis=0).numpy()
+        all_sig = tf.concat(all_sig, axis=0).numpy()
+        all_bits = tf.concat(all_bits, axis=0).numpy()
 
     meta_data = np.concatenate(meta_data, axis=1).T
-    pickle.dump((all_sig_mixture, all_sig1, all_bits1, meta_data),
-                open(os.path.join('dataset', f'Dataset_Seed{seed_number}_{soi_type}_{interference_sig_type}.pkl'), 'wb'),
+
+    # sort by snr
+    sort_indices = meta_data[:, 1].astype('float64').argsort()
+    all_sig_mixture = all_sig_mixture[sort_indices, :]
+    all_sig = all_sig[sort_indices, :]
+    all_bits = all_bits[sort_indices, :]
+    meta_data = meta_data[sort_indices, :]
+
+    pickle.dump((all_sig_mixture, all_sig, all_bits, meta_data),
+                open(os.path.join('dataset',
+                                  f'Dataset_Seed{seed}_{soi_type}_{interference_type1}+{interference_type2}.pkl'),
+                     'wb'),
                 protocol=4)
 
 
@@ -110,11 +132,12 @@ if __name__ == "__main__":
     parser.add_argument('-b', '--n_per_batch', default=100, type=int, help='')
     parser.add_argument('-seed', '--random_seed', default=0, type=int, help='')
     parser.add_argument('-soi', '--soi_sig_type', help='')
-    parser.add_argument('-i_sig', '--interference_sig_type', help='')
+    parser.add_argument('-i_sig1', '--interference_sig_type1', help='')
+    parser.add_argument('-i_sig2', '--interference_sig_type2', help='')
+    parser.add_argument('-p', '--mixtures_probability', default=0.5, type=float, help='')
 
     args = parser.parse_args()
 
-    soi_type = args.soi_sig_type
-    interference_sig_type = args.interference_sig_type
-
-    generate_demod_testmixture(args.soi_sig_type, args.interference_sig_type, args.n_per_batch, args.random_seed)
+    # generate_demod_testmixture(args.soi_sig_type, args.interference_sig_type, args.n_per_batch, args.random_seed)
+    # generate_combined_testmixture(args.soi_sig_type, args.interference_sig_type1, args.interference_sig_type2, args.mixtures_probability, args.n_per_batch, args.random_seed)
+    generate_combined_testmixture('QPSK', 'CommSignal2', 'EMISignal1', 0.5, 1000, 5000)

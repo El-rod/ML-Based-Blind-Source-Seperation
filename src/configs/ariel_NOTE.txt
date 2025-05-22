@@ -1,0 +1,5 @@
+The purpose of this folder is to save configuration yml files
+that are used for the PyTorch Wavenet training
+in the "train_torchwavenet.py" python script.
+
+The yml configuration overrides the one defaulted in "config_torchwavenet.py"

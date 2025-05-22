@@ -1,3 +1,8 @@
+"""
+Converts all saved numpy RF-mixtures dataset to a PyTorch Dataset
+(which was created by "example_preprocess_npy_dataset.py")
+"""
+
 import os
 import glob
 import torch
@@ -7,10 +12,6 @@ from torch.utils.data import Dataset
 
 
 class RFMixtureDatasetBase(Dataset):
-    """
-    Converts all saved numpy RF-mixtures dataset to a pytorch Dataset
-    (which was created by example_preprocess_npy_dataset.py)
-    """
     def __init__(self, root_dir: str):
         """
         root_dir: root directory of the saved (numpy-type) dataset
@@ -56,7 +57,8 @@ def get_train_val_dataset(dataset: Dataset, train_fraction: float):
 
 
 if __name__ == "__main__":
-    # the reason this file is called example and not just what it is
+    # example
     dataset = RFMixtureDatasetBase(
-        root_dir="./npydataset/Dataset_QPSK_SynOFDM_Mixture",
+        root_dir="./npydataset/Dataset_QPSK_CommSignal2_Mixture",
     )
+    print(len(dataset))

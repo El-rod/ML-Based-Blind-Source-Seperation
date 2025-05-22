@@ -27,7 +27,7 @@ import torch.nn as nn
 # converts the dataclass obj to a dict
 from dataclasses import asdict
 
-# This container provides data parallelism by synchronizing gradients across each model replica.
+# This container provides data parallelism by synchronizing gradients across each model replica (multiple GPU support).
 from torch.nn.parallel import DistributedDataParallel
 
 # DistributedSampler: Sampler that restricts data loading to a subset of the dataset.
@@ -47,6 +47,7 @@ from .config_torchwavenet import Config
 from .torchdataset import RFMixtureDatasetBase, get_train_val_dataset
 from .torchwavenet import Wave
 
+SEED = 0
 
 def _nested_map(struct, map_fn):
     if isinstance(struct, tuple):
@@ -60,8 +61,7 @@ def _nested_map(struct, map_fn):
 
 def view_as_complex(x):
     """
-    breaks up inserted tensor x
-    from two real dimensions to one complex dimension
+    Combines inserted tensor x from two real dimensions to one complex dimension.
     """
     x = x[:, 0, ...] + 1j * x[:, 1, ...]
     return x
@@ -80,6 +80,7 @@ class WaveLearner:
         self.validate_every = cfg.trainer.validate_every
         self.save_every = cfg.trainer.save_every
         self.max_steps = cfg.trainer.max_steps
+        self.epochs = cfg.trainer.epochs # added epochs as originally steps were the training measure
         self.build_dataloaders()
 
         self.model = model
@@ -88,8 +89,8 @@ class WaveLearner:
         self.lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
             self.optimizer, "min",
         )
-        self.autocast = torch.cuda.amp.autocast(enabled=cfg.trainer.fp16)
-        self.scaler = torch.cuda.amp.GradScaler(enabled=cfg.trainer.fp16)
+        self.autocast = torch.amp.autocast(device_type='cuda', enabled=cfg.trainer.fp16)
+        self.scaler = torch.amp.GradScaler(enabled=cfg.trainer.fp16)
         self.step = 0
 
         self.loss_fn = nn.MSELoss()
@@ -100,6 +101,10 @@ class WaveLearner:
         return self.rank == 0
 
     def build_dataloaders(self):
+        """
+        Initializes the PyTorch DataLoaders from the Datasets created from "torchdataset.py",
+        where the data is taken from the "root_dir" from the Config class object.
+        """
         self.dataset = RFMixtureDatasetBase(
             root_dir=self.cfg.data.root_dir,
         )
@@ -130,21 +135,27 @@ class WaveLearner:
         )
 
     def state_dict(self):
+        """
+        PyTorch RFC WaveNet custom state dictionary to save.
+        """
         if hasattr(self.model, 'module') and isinstance(self.model.module, nn.Module):
             model_state = self.model.module.state_dict()
         else:
             model_state = self.model.state_dict()
         return {
             'step': self.step,
-            'model': {k: v.cpu() if isinstance(v, torch.Tensor) 
+            'model': {k: v.cpu() if isinstance(v, torch.Tensor)
                       else v for k, v in model_state.items()},
-            'optimizer': {k: v.cpu() if isinstance(v, torch.Tensor) 
+            'optimizer': {k: v.cpu() if isinstance(v, torch.Tensor)
                           else v for k, v in self.optimizer.state_dict().items()},
             'cfg': asdict(self.cfg),
             'scaler': self.scaler.state_dict(),
         }
 
     def load_state_dict(self, state_dict):
+        """
+        Load PyTorch RFC WaveNet custom state dictionary.
+        """
         if hasattr(self.model, 'module') and isinstance(self.model.module, nn.Module):
             self.model.module.load_state_dict(state_dict['model'])
         else:
@@ -154,6 +165,10 @@ class WaveLearner:
         self.step = state_dict['step']
 
     def save_to_checkpoint(self, filename='weights'):
+        """
+        Gives the latest saved model state_dict a link (shortcut)
+        in order to load it generally without the saved step number.
+        """
         save_basename = f'{filename}-{self.step}.pt'
         save_name = f'{self.model_dir}/{save_basename}'
         link_name = f'{self.model_dir}/{filename}.pt'
@@ -164,20 +179,28 @@ class WaveLearner:
         os.symlink(save_basename, link_name)
 
     def restore_from_checkpoint(self, filename='weights'):
+        """
+        Restore model state dict from last saved checkpoint.
+        """
         try:
             checkpoint = torch.load(f'{self.model_dir}/{filename}.pt')
             self.load_state_dict(checkpoint)
             return True
-        except FileNotFoundError:
+        except (FileNotFoundError, RuntimeError): #fix
             return False
 
     def train(self):
+        """
+        PyTorch standard model training function.
+        """
         device = next(self.model.parameters()).device
 
-        while True:
+        #while True:
+        max_step = 'end' if self.max_steps <= 0 else self.max_steps
+        for epoch in range(self.epochs):
             for i, features in enumerate(
-                tqdm(self.train_dataloader, 
-                     desc=f"Training ({self.step} / {self.max_steps})")):
+                tqdm(self.train_dataloader,
+                     desc=f"Training (step: {self.step} / {max_step}), epoch: ({epoch+1}/{self.epochs})")):
                 features = _nested_map(features, lambda x: x.to(
                     device) if isinstance(x, torch.Tensor) else x)
                 loss = self.train_step(features)
@@ -200,17 +223,26 @@ class WaveLearner:
                     # Update the learning rate if it plateus
                     self.lr_scheduler.step(val_loss)
 
-                if self.distributed:
+                if self.distributed :
                     dist.barrier()
 
                 self.step += 1
 
-                if self.step == self.max_steps:
-                    if self.is_master and self.distributed:
-                        self.save_to_checkpoint()
-                        print("Ending training...")
-                    dist.barrier()
-                    exit(0)
+                if self.max_steps > 0:
+                    if self.step == self.max_steps:
+                        if self.is_master and self.distributed:
+                            self.save_to_checkpoint()
+                            print("Ending training...")
+                        if self.distributed:
+                            dist.barrier() #fixed for 1 gpu
+                        exit(0)
+        else:
+            if self.is_master and self.distributed:
+                self.save_to_checkpoint()
+                print("Ending training...")
+            if self.distributed:
+                dist.barrier() #fixed for 1 gpu
+            exit(0)
 
     def train_step(self, features: Dict[str, torch.Tensor]):
         for param in self.model.parameters():
@@ -241,7 +273,7 @@ class WaveLearner:
 
         loss = 0
         for features in tqdm(
-            self.val_dataloader, 
+            self.val_dataloader,
             desc=f"Running validation after step {self.step}"
         ):
             features = _nested_map(features, lambda x: x.to(
@@ -274,6 +306,7 @@ def _train_impl(rank: int, model: nn.Module, cfg: Config):
 
 def train(cfg: Config):
     """Training on a single GPU."""
+    torch.manual_seed(SEED) # i added
     model = Wave(cfg.model).cuda()
     _train_impl(0, model, cfg)
 
@@ -288,6 +321,7 @@ def init_distributed(rank: int, world_size: int, port: str):
 
 def train_distributed(rank: int, world_size: int, port, cfg: Config):
     """Training on multiple GPUs."""
+    torch.manual_seed(SEED) # i added
     init_distributed(rank, world_size, port)
     device = torch.device('cuda', rank)
     torch.cuda.set_device(device)
