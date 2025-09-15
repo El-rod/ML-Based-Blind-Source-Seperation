@@ -7,12 +7,32 @@ import tensorflow as tf
 import torch
 from tqdm import tqdm
 
-from rfcutils.qpsk_helper_fn import qpsk_matched_filter_demod
-
-DEVICE = 'cuda:0'
+DEVICE = 'cuda:1'
 all_sinr = np.arange(-30, 0.1, 3)
 sig_len = 40960
 n_per_batch = 100
+
+
+def get_soi_demod_fn(soi_sig_type):
+    import rfcutils
+    if soi_sig_type == 'QPSK':
+        from rfcutils import qpsk_matched_filter_demod
+        demod_soi = qpsk_matched_filter_demod
+    elif soi_sig_type == 'QAM16':
+        from rfcutils import qam16_matched_filter_demod
+        demod_soi = qam16_matched_filter_demod
+    elif soi_sig_type == 'QPSK2':
+        from rfcutils import qpsk2_matched_filter_demod
+        demod_soi = qpsk2_matched_filter_demod
+    elif soi_sig_type == '8PSK':
+        from rfcutils import _8psk_matched_filter_demod
+        demod_soi = _8psk_matched_filter_demod
+    elif soi_sig_type == '16PSK':
+        from rfcutils import _16psk_matched_filter_demod
+        demod_soi = _16psk_matched_filter_demod
+    else:
+        raise Exception("SOI Type not recognized")
+    return demod_soi
 
 
 def run_inference_wavenet(all_sig_mixture, model_path):
@@ -40,8 +60,9 @@ def run_inference_wavenet(all_sig_mixture, model_path):
     sig1_est = tf.complex(sig1_out[:, :, 0], sig1_out[:, :, 1])
 
     bit_est = []
+    demod_soi = get_soi_demod_fn(soi_type)
     for idx, sinr_db in tqdm(enumerate(all_sinr)):
-        bit_est_batch, _ = qpsk_matched_filter_demod(sig1_est[idx * n_total:(idx + 1) * n_total])
+        bit_est_batch, _ = demod_soi(sig1_est[idx * n_total:(idx + 1) * n_total])
         bit_est.append(bit_est_batch)
     bit_est = tf.concat(bit_est, axis=0)
     sig1_est, bit_est = sig1_est.numpy(), bit_est.numpy()
@@ -50,28 +71,32 @@ def run_inference_wavenet(all_sig_mixture, model_path):
 
 if __name__ == "__main__":
 
+    testset_identifier = 'Seed1'
     soi_type = "QPSK"
-    # interference_sig_type = "CommSignal2"
-    interference_sig_type = "EMISignal1"
-    testset_identifier = 'Seed20250401'
-    # testset_identifier = 'Seed0'
+    interference_sig_type = "CommSignal2"
+    type2 = "EMISignal1"
+
     classify = 0
 
-    with open(f'dataset/Dataset_{testset_identifier}_{soi_type}_{interference_sig_type}.pkl', 'rb') as f:
+    with open(f'dataset/Dataset_{testset_identifier}_{soi_type}+{interference_sig_type}.pkl', 'rb') as f:
         all_sig_mixture, all_sig1_groundtruth, all_bits1_groundtruth, meta_data = pickle.load(f)
 
     if classify:
         model_path = f"torchmodels/dataset_{soi_type.lower()}_{interference_sig_type.lower()}_mixture_wavenet"
-        id_string = 'Default_Torch_WaveNet'
+        id_string = 'ConditionedTrained_WaveNet'
     else:
-        model_path = f"torchmodels/dataset_{soi_type.lower()}_comm2andemi1_mixture_wavenet_ariel"
-        id_string = 'TwoMixTrained_Torch_WaveNet'
+        model_path = f"torchmodels/dataset_{soi_type.lower()}_{interference_sig_type.lower()}_{type2.lower()}_mixture_wavenet_MT"
+
+        if not os.path.exists(model_path):
+            model_path = f'torchmodels/dataset_{soi_type.lower()}_{type2.lower()}_{interference_sig_type.lower()}_mixture_wavenet_MT'
+
+        id_string = f'MixtureTrained_with_{type2}_WaveNet'
 
     sig1_est, bit1_est = run_inference_wavenet(all_sig_mixture, model_path)
 
     np.save(os.path.join('outputs',
-                         f'{id_string}_{testset_identifier}_estimated_soi_{soi_type}_{interference_sig_type}'),
+                         f'{id_string}_{testset_identifier}_estimated_soi_{soi_type}+{interference_sig_type}'),
             sig1_est)
     np.save(os.path.join('outputs',
-                         f'{id_string}_{testset_identifier}_estimated_bits_{soi_type}_{interference_sig_type}'),
+                         f'{id_string}_{testset_identifier}_estimated_bits_{soi_type}+{interference_sig_type}'),
             bit1_est)

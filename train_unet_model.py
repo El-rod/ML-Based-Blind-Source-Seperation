@@ -3,25 +3,22 @@ import sys
 import tensorflow_datasets as tfds
 import tensorflow as tf
 
-from src import unet_model as unet
+gpus = tf.config.list_physical_devices('GPU')
+tf.config.set_visible_devices(gpus[1], 'GPU')
+tf.config.experimental.set_memory_growth(gpus[1], True)
+
+#from src import unet_model as unet
+from src import unet_8layered_model as unet
 
 from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
 
 mirrored_strategy = tf.distribute.MirroredStrategy(devices=["/gpu:0", "/gpu:1"])
 # mirrored_strategy = tf.distribute.MirroredStrategy(devices=["/gpu:1"])
 
-bsz = 32  # 32, 64
-EPOCHS = 2  # mem: 30
-
-# all_datasets = ['QPSK_CommSignal2', 'QPSK2_CommSignal2', 'QAM16_CommSignal2', 'OFDMQPSK_CommSignal2',
-#                 'QPSK_CommSignal3', 'QPSK2_CommSignal3', 'QAM16_CommSignal3', 'OFDMQPSK_CommSignal3',
-#                 'CommSignal2_CommSignal3',
-#                 'QPSK_EMISignal1', 'QPSK2_EMISignal1', 'QAM16_EMISignal1', 'OFDMQPSK_EMISignal1',
-#                 'CommSignal2_EMISignal1',
-#                 'QPSK_CommSignal5G1', 'QPSK2_CommSignal5G1', 'QAM16_CommSignal5G1', 'OFDMQPSK_CommSignal5G1',
-#                 'CommSignal2_CommSignal5G1']
-
-all_datasets = ['dataset_qpsk_comm2and_emi1_mixture']
+bsz = 32
+EPOCHS = 18
+suffix = 'unet8_MT'
+all_datasets = ['dataset_qpsk_commsignal3_emisignal1_mixture']
 
 
 class LossSummaryCallback(tf.keras.callbacks.Callback):
@@ -46,13 +43,13 @@ def train_script(idx):
                             shuffle_files=True,
                             as_supervised=False,  # True
                             with_info=True,
-                            data_dir='tfds'
+                            data_dir='serverdata/tfds'
                             )
     ds_val, _ = tfds.load(dataset_type, split="train[90%:]",
                           shuffle_files=True,
                           as_supervised=False,  # True
                           with_info=True,
-                          data_dir='tfds'
+                          data_dir='serverdata/tfds'
                           )
 
     # def extract_example(mixture, target):
@@ -70,13 +67,13 @@ def train_script(idx):
     ds_val = ds_val.prefetch(tf.data.AUTOTUNE)
 
     window_len = 40960
-    earlystopping = EarlyStopping(monitor='val_loss', patience=100)  # unet2
-    model_pathname = os.path.join('models', f'{dataset_type}_unet2_ariel', 'checkpoint')
+    earlystopping = EarlyStopping(monitor='val_loss', patience=100)
+    model_pathname = os.path.join('models', f'{dataset_type}_{suffix}', 'checkpoint')
     checkpoint = ModelCheckpoint(filepath=model_pathname, monitor='val_loss', verbose=0, save_best_only=True,
                                  mode='min', save_weights_only=True)
 
     import datetime
-    log_pathname = os.path.join('models', f'{dataset_type}_unet2_ariel',
+    log_pathname = os.path.join('models', f'{dataset_type}_{suffix}',
                                 f'log{datetime.datetime.now().strftime("%Y%m%d-%H%M%S")}')
     loss_logger = LossSummaryCallback(log_dir=log_pathname)
 
@@ -91,5 +88,4 @@ def train_script(idx):
 
 
 if __name__ == '__main__':
-    # train_script(int(sys.argv[1]))
     train_script(int(0))

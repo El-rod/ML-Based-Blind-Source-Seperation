@@ -12,13 +12,13 @@ sig_len = 40960
 all_sinr = np.arange(-30, 0.1, 3)
 
 
-def run_inference_classifier(all_sig_mixture, NUM_CLASSES=2):
+def run_inference_classifier(all_sig_mixture, model, NUM_CLASSES=2):
     with tf.device('/gpu:0'):
         from src import cnn_detector
 
-        nn_model = ariel_cnn_classifier.get_classifier_model((sig_len, 2), NUM_CLASSES)
+        nn_model = cnn_detector.get_classifier_model((sig_len, 2), NUM_CLASSES)
         nn_model.load_weights(
-            os.path.join('models', f'dataset_qpsk_comm2and_emi1_mixture_cnn_classifier_ariel',
+            os.path.join('models', f'{model}',
                          'checkpoint')).expect_partial()
 
         all_sig_mixture = tf.stack((tf.math.real(all_sig_mixture), tf.math.imag(all_sig_mixture)), axis=-1)
@@ -37,19 +37,22 @@ def run_inference_classifier(all_sig_mixture, NUM_CLASSES=2):
 
 
 if __name__ == "__main__":
-
-    testset_identifier = 'Seed5000'
+    testset_identifier = 'Seed1'
     soi_type = "QPSK"
-    interference_sig_type1 = "CommSignal2"
-    interference_sig_type2 = "EMISignal1"
+    interference_sig_type1 = "EMISignal1"
+    interference_sig_type2 = "CommSignal5G1"
     NUM_CLASSES = 2
 
-    with open(f'dataset/Dataset_{testset_identifier}_{soi_type}_{interference_sig_type1}+{interference_sig_type2}.pkl',
+    model = f'dataset_{soi_type.lower()}_{interference_sig_type1.lower()}_{interference_sig_type2.lower()}_cnn_detector'
+    if not os.path.exists(os.path.join('models', model, 'checkpoint')):
+        model = f'dataset_{soi_type.lower()}_{interference_sig_type2.lower()}_{interference_sig_type1.lower()}_cnn_detector'
+
+    with open(f'dataset/Dataset_{testset_identifier}_{soi_type}+{interference_sig_type1}∨{interference_sig_type2}.pkl',
               'rb') as f:
         all_sig_mixture, all_sig1_groundtruth, all_bits1_groundtruth, meta_data = pickle.load(f)
 
-    predicted_classes = run_inference_classifier(all_sig_mixture, NUM_CLASSES)
-    id_string = 'a'
+    predicted_classes = run_inference_classifier(all_sig_mixture, model, NUM_CLASSES)
+    id_string = 'classification'
 
 
     def eval_error(pred_labels, true_labels):
@@ -58,22 +61,22 @@ if __name__ == "__main__":
         return error_rate
 
 
-    true_label = (meta_data[:, 4] == "EMISignal1").astype(int)
+    true_label = (meta_data[:, 4] == "CommSignal5G1").astype(int)
     all_error = []
-    bsz = 2000
+    bsz = 1000
     for idx, sinr in enumerate(all_sinr):
         batch_error = eval_error(predicted_classes[idx * bsz:(idx + 1) * bsz],
                                  true_label[idx * bsz:(idx + 1) * bsz])
         all_error.append(batch_error)
 
+    print(all_error)
     plt.figure()
-    plt.plot(all_sinr, all_error, 'x--', label=f'{id_string}')
+    plt.semilogy(all_sinr, all_error, 'x--', label=f'{id_string}')
     plt.legend()
     plt.grid()
-    plt.gca().set_ylim(top=3)
+    plt.ylim([1e-4, 1])
     plt.xlabel('SINR [dB]')
-    plt.ylabel('P_k ')
-    plt.title(f'error class')
+    plt.ylabel('P_k')
+    plt.title(f'error')
     plt.show()
-    plt.savefig(os.path.join('outputs', f'class_error.png'))
-
+    plt.savefig(os.path.join('outputs', f'detector_error.png'))

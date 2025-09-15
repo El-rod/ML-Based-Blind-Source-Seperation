@@ -10,18 +10,10 @@ from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
 mirrored_strategy = tf.distribute.MirroredStrategy(devices=["/gpu:0", "/gpu:1"])
 # mirrored_strategy = tf.distribute.MirroredStrategy(devices=["/gpu:1"])
 
-bsz = 32  # 32, 64
-EPOCHS = 6
+bsz = 32
+EPOCHS = 10
 
-# all_datasets = ['QPSK_CommSignal2', 'QPSK2_CommSignal2', 'QAM16_CommSignal2', 'OFDMQPSK_CommSignal2',
-#                 'QPSK_CommSignal3', 'QPSK2_CommSignal3', 'QAM16_CommSignal3', 'OFDMQPSK_CommSignal3',
-#                 'CommSignal2_CommSignal3',
-#                 'QPSK_EMISignal1', 'QPSK2_EMISignal1', 'QAM16_EMISignal1', 'OFDMQPSK_EMISignal1',
-#                 'CommSignal2_EMISignal1',
-#                 'QPSK_CommSignal5G1', 'QPSK2_CommSignal5G1', 'QAM16_CommSignal5G1', 'OFDMQPSK_CommSignal5G1',
-#                 'CommSignal2_CommSignal5G1']
-
-all_datasets = ['dataset_qpsk_comm2and_emi1_mixture']
+all_datasets = ['dataset_qpsk_commsignal3_commsignal2_mixture']
 
 
 class LossSummaryCallback(tf.keras.callbacks.Callback):
@@ -91,5 +83,4 @@ def train_script(idx):
 
 
 if __name__ == '__main__':
-    # train_script(int(sys.argv[1]))
     train_script(int(0))

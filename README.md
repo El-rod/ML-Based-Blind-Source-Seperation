@@ -179,3 +179,39 @@ Participants are encouraged to utilize the provided channels and collaborate wit
 The efforts of the organizers are supported by the United States Air Force Research Laboratory and the United States Air Force Artificial Intelligence Accelerator under Cooperative Agreement Number FA8750-19-2-1000. The views and conclusions contained in this document are those of the authors and should not be interpreted as representing the official policies, either expressed or implied, of the United States Air Force or the U.S. Government.
 
 The organizers acknowledge the MIT SuperCloud and Lincoln Laboratory Supercomputing Center for providing HPC resources that have contributed to the development of this work.
+
+---
+### FILE ORG
+U-net:
+train_unet_model.py
+src/unet_model.py
+sampletest_tf_unet_inference.py
+---
+tfds_scripts/Dataset_[SOI Type]_[Interference Type]_Mixture.py
+
+WaveNet:
+train_torchwavenet.py
+supervised_config.yml
+src/configs
+src/torchdataset.py
+src/learner_torchwavenet.py
+src/config_torchwavenet.py
+src/torchwavenet.py
+---
+example_preprocess_npy_dataset.py
+
+Helper Functions for Training:
+RFC_Demo.ipynb
+example_generate_competition_trainmixture.py
+example_generate_rfc_mixtures.py
+tfds_scripts/Dataset_[SOI Type]_[Interference Type]_Mixture.py
+
+utils:
+sig_utils_fn.py
+rrc_helper_fn.py
+qpsk_helper_fn.py
+qpsk2_helper_fn.py
+qam16_helper_fn.py
+ofdm_helper_fn.py
+
+

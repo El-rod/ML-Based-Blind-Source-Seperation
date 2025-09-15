@@ -19,15 +19,8 @@ def _get_free_port():
         return s.server_address[1]
 
 
-# all_datasets = ['QPSK_CommSignal2', 'QPSK2_CommSignal2', 'QAM16_CommSignal2', 'OFDMQPSK_CommSignal2',
-#                 'QPSK_CommSignal3', 'QPSK2_CommSignal3', 'QAM16_CommSignal3', 'OFDMQPSK_CommSignal3',
-#                 'CommSignal2_CommSignal3',
-#                 'QPSK_EMISignal1', 'QPSK2_EMISignal1', 'QAM16_EMISignal1', 'OFDMQPSK_EMISignal1',
-#                 'CommSignal2_EMISignal1',
-#                 'QPSK_CommSignal5G1', 'QPSK2_CommSignal5G1', 'QAM16_CommSignal5G1', 'OFDMQPSK_CommSignal5G1',
-#                 'CommSignal2_CommSignal5G1']
-
-all_datasets = ['QPSK_Comm2andEMI1']
+all_datasets = ['QPSK+CommSignal2']
+suffix = '_MT'
 
 
 def main(argv: List[str]):
@@ -44,8 +37,8 @@ def main(argv: List[str]):
     cli_cfg = OmegaConf.from_cli(
         argv[-1].split("::")) if argv[-1] != "" else None
     cfg: Config = Config(**parse_configs(cfg, cli_cfg))
-    cfg.data.root_dir = f"npydataset/Dataset_{sigtype}_Mixture_rare005"
-    cfg.model_dir = f"torchmodels/dataset_{sigtype.lower()}_mixture_rare005_wavenet_ariel"
+    cfg.data.root_dir = f"npydataset/Dataset_{sigtype}_Mixture"
+    cfg.model_dir = f"torchmodels/dataset_{sigtype.lower()}_mixture_wavenet_{suffix}"
 
     # Setup training
     world_size = device_count()
