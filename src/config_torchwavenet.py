@@ -14,6 +14,7 @@ from omegaconf import DictConfig, OmegaConf
 OmegaConf.register_new_resolver(
     "datetime", lambda s: f'{s}_{datetime.now().strftime("%H_%M_%S")}')
 
+
 @dataclass
 class ModelConfig:
     """
@@ -23,6 +24,7 @@ class ModelConfig:
     residual_layers: int = 30
     residual_channels: int = 64
     dilation_cycle_length: int = 10
+
 
 @dataclass
 class DataConfig:
@@ -34,6 +36,7 @@ class DataConfig:
     num_workers: int = 4
     train_fraction: float = 0.8
 
+
 @dataclass
 class DistributedConfig:
     """
@@ -42,6 +45,7 @@ class DistributedConfig:
     distributed: bool = False
     # Number of processes participating in distributed training
     world_size: int = 2
+
 
 @dataclass
 class TrainerConfig:
@@ -58,6 +62,7 @@ class TrainerConfig:
     validate_every: int = 100
     epochs: int = 1
 
+
 @dataclass
 class Config:
     """
@@ -71,6 +76,7 @@ class Config:
     data: DataConfig = field(default_factory=lambda: DataConfig(root_dir=""))
     distributed: DistributedConfig = field(default_factory=DistributedConfig)
     trainer: TrainerConfig = field(default_factory=TrainerConfig)
+
 
 def parse_configs(cfg: DictConfig, cli_cfg: Optional[DictConfig] = None) -> DictConfig:
     """
@@ -88,6 +94,7 @@ def parse_configs(cfg: DictConfig, cli_cfg: Optional[DictConfig] = None) -> Dict
     if cli_cfg is not None:
         merged_cfg = OmegaConf.merge(merged_cfg, cli_cfg)
     return merged_cfg
+
 
 if __name__ == "__main__":
     # example of overriding the default values with yml file from configs

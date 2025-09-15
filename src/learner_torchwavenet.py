@@ -49,6 +49,7 @@ from .torchwavenet import Wave
 
 SEED = 0
 
+
 def _nested_map(struct, map_fn):
     if isinstance(struct, tuple):
         return tuple(_nested_map(x, map_fn) for x in struct)
@@ -80,7 +81,7 @@ class WaveLearner:
         self.validate_every = cfg.trainer.validate_every
         self.save_every = cfg.trainer.save_every
         self.max_steps = cfg.trainer.max_steps
-        self.epochs = cfg.trainer.epochs # added epochs as originally steps were the training measure
+        self.epochs = cfg.trainer.epochs  # added epochs as originally steps were the training measure
         self.build_dataloaders()
 
         self.model = model
@@ -145,9 +146,9 @@ class WaveLearner:
         return {
             'step': self.step,
             'model': {k: v.cpu() if isinstance(v, torch.Tensor)
-                      else v for k, v in model_state.items()},
+            else v for k, v in model_state.items()},
             'optimizer': {k: v.cpu() if isinstance(v, torch.Tensor)
-                          else v for k, v in self.optimizer.state_dict().items()},
+            else v for k, v in self.optimizer.state_dict().items()},
             'cfg': asdict(self.cfg),
             'scaler': self.scaler.state_dict(),
         }
@@ -186,7 +187,7 @@ class WaveLearner:
             checkpoint = torch.load(f'{self.model_dir}/{filename}.pt')
             self.load_state_dict(checkpoint)
             return True
-        except (FileNotFoundError, RuntimeError): #fix
+        except (FileNotFoundError, RuntimeError):  #fix
             return False
 
     def train(self):
@@ -199,8 +200,8 @@ class WaveLearner:
         max_step = 'end' if self.max_steps <= 0 else self.max_steps
         for epoch in range(self.epochs):
             for i, features in enumerate(
-                tqdm(self.train_dataloader,
-                     desc=f"Training (step: {self.step} / {max_step}), epoch: ({epoch+1}/{self.epochs})")):
+                    tqdm(self.train_dataloader,
+                         desc=f"Training (step: {self.step} / {max_step}), epoch: ({epoch + 1}/{self.epochs})")):
                 features = _nested_map(features, lambda x: x.to(
                     device) if isinstance(x, torch.Tensor) else x)
                 loss = self.train_step(features)
@@ -223,7 +224,7 @@ class WaveLearner:
                     # Update the learning rate if it plateus
                     self.lr_scheduler.step(val_loss)
 
-                if self.distributed :
+                if self.distributed:
                     dist.barrier()
 
                 self.step += 1
@@ -234,14 +235,14 @@ class WaveLearner:
                             self.save_to_checkpoint()
                             print("Ending training...")
                         if self.distributed:
-                            dist.barrier() #fixed for 1 gpu
+                            dist.barrier()  #fixed for 1 gpu
                         exit(0)
         else:
             if self.is_master and self.distributed:
                 self.save_to_checkpoint()
                 print("Ending training...")
             if self.distributed:
-                dist.barrier() #fixed for 1 gpu
+                dist.barrier()  #fixed for 1 gpu
             exit(0)
 
     def train_step(self, features: Dict[str, torch.Tensor]):
@@ -273,8 +274,8 @@ class WaveLearner:
 
         loss = 0
         for features in tqdm(
-            self.val_dataloader,
-            desc=f"Running validation after step {self.step}"
+                self.val_dataloader,
+                desc=f"Running validation after step {self.step}"
         ):
             features = _nested_map(features, lambda x: x.to(
                 device) if isinstance(x, torch.Tensor) else x)
@@ -306,7 +307,7 @@ def _train_impl(rank: int, model: nn.Module, cfg: Config):
 
 def train(cfg: Config):
     """Training on a single GPU."""
-    torch.manual_seed(SEED) # i added
+    torch.manual_seed(SEED)  # i added
     model = Wave(cfg.model).cuda()
     _train_impl(0, model, cfg)
 
@@ -321,7 +322,7 @@ def init_distributed(rank: int, world_size: int, port: str):
 
 def train_distributed(rank: int, world_size: int, port, cfg: Config):
     """Training on multiple GPUs."""
-    torch.manual_seed(SEED) # i added
+    torch.manual_seed(SEED)  # i added
     init_distributed(rank, world_size, port)
     device = torch.device('cuda', rank)
     torch.cuda.set_device(device)

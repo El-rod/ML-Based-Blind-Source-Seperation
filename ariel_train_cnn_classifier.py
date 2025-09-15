@@ -3,7 +3,7 @@ import sys
 import tensorflow_datasets as tfds
 import tensorflow as tf
 
-from src import ariel_cnn_classifier as cnn
+from src import cnn_detector as cnn
 
 from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
 

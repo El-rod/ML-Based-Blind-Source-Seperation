@@ -1,6 +1,6 @@
 """
 Converts all saved numpy RF-mixtures dataset to a PyTorch Dataset
-(which was created by "preprocess_wavenet_training_dataset.py")
+(which was created by "example_preprocess_npy_dataset.py")
 """
 
 import os

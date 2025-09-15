@@ -1,6 +1,7 @@
 import tensorflow as tf
 from tensorflow.keras import layers, models
 
+
 def get_classifier_model(input_shape, num_classes, k_sz=3, long_k_sz=101, k_neurons=32, lr=0.0003):
     in0 = layers.Input(shape=input_shape)
     x = in0

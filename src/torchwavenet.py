@@ -11,7 +11,6 @@ from math import sqrt
 
 from .config_torchwavenet import ModelConfig
 
-
 Linear = nn.Linear
 ConvTranspose2d = nn.ConvTranspose2d
 
@@ -35,7 +34,7 @@ class ResidualBlock(nn.Module):
         """
         super().__init__()
         self.dilated_conv = Conv1d(
-            residual_channels, 2 * residual_channels, 
+            residual_channels, 2 * residual_channels,
             3, padding=dilation, dilation=dilation)
 
         self.output_projection = Conv1d(
@@ -60,8 +59,8 @@ class Wave(nn.Module):
             cfg.input_channels, cfg.residual_channels, 1)
 
         self.residual_layers = nn.ModuleList([
-            ResidualBlock(cfg.residual_channels, 2**(i %
-                          cfg.dilation_cycle_length))
+            ResidualBlock(cfg.residual_channels, 2 ** (i %
+                                                       cfg.dilation_cycle_length))
             for i in range(cfg.residual_layers)
         ])
         self.skip_projection = Conv1d(

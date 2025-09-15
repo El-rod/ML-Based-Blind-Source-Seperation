@@ -14,7 +14,7 @@ all_sinr = np.arange(-30, 0.1, 3)
 
 def run_inference_classifier(all_sig_mixture, NUM_CLASSES=2):
     with tf.device('/gpu:0'):
-        from src import ariel_cnn_classifier
+        from src import cnn_detector
 
         nn_model = ariel_cnn_classifier.get_classifier_model((sig_len, 2), NUM_CLASSES)
         nn_model.load_weights(

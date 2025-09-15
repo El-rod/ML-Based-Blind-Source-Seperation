@@ -1,12 +1,7 @@
-"""
-RFC TensorFlow UNet model
-"""
-
 import tensorflow as tf
 from tensorflow.keras import layers
 from tensorflow.keras.models import Model
 
-# added for retestable random initialization
 SEED = 0
 tf.random.set_seed(SEED)
 
@@ -22,7 +17,8 @@ def get_unet_model(input_shape, k_sz=3, long_k_sz=101, lr=0.0003, k_neurons=32):
 
     upsamp_blocks = []
 
-    for n_layer, k in enumerate([8, 8, 8, 8, 8]):
+    # 8 layers conv layers
+    for n_layer, k in enumerate([8, 8, 8, 8, 8, 8, 8, 8]):
         if n_layer == 0:
             conv = layers.Conv1D(k_neurons * k, long_k_sz, activation="relu", padding="same")(x)
         else:
@@ -30,6 +26,7 @@ def get_unet_model(input_shape, k_sz=3, long_k_sz=101, lr=0.0003, k_neurons=32):
 
         conv = layers.Conv1D(k_neurons * k, k_sz, activation="relu", padding="same")(conv)
         pool = layers.MaxPooling1D(2)(conv)
+
         if n_layer == 0:
             pool = layers.Dropout(0.25)(pool)
         else:
@@ -38,12 +35,14 @@ def get_unet_model(input_shape, k_sz=3, long_k_sz=101, lr=0.0003, k_neurons=32):
         upsamp_blocks.append(conv)
         x = pool
 
-    # Middle
+    # middle
     convm = layers.Conv1D(k_neurons * 8, k_sz, activation="relu", padding="same")(x)
     convm = layers.Conv1D(k_neurons * 8, k_sz, activation="relu", padding="same")(convm)
 
     x = convm
-    for n_layer, k in enumerate([8, 8, 4, 2, 1]):
+
+    # 8 layers deconv layers
+    for n_layer, k in enumerate([8, 8, 8, 8, 8, 8, 4, 2]):
         deconv = layers.Conv1DTranspose(k_neurons * k, k_sz, strides=2, padding="same")(x)
         uconv = layers.concatenate([deconv, upsamp_blocks[-(n_layer + 1)]])
         uconv = layers.Dropout(0.5)(uconv)
