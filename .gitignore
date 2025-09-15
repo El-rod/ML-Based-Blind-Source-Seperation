@@ -4,6 +4,7 @@ tfds
 models
 torchmodels
 *RFCDEV*
+.idea
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
