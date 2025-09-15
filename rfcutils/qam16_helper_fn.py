@@ -25,7 +25,7 @@ demapper = sn.mapping.Demapper("app", constellation=constellation)
 
 # AWGN channel
 awgn_channel = sn.channel.AWGN()
-
+z
 
 def generate_qam16_signal(batch_size, num_symbols, ebno_db=None):
     bits = binary_source([batch_size, num_symbols * NUM_BITS_PER_SYMBOL])  # Blocklength

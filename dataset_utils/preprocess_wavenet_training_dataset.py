@@ -11,8 +11,7 @@ import numpy as np
 from tqdm import tqdm
 
 main_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-#print(main_folder)
-#main_folder = r'/home/dsi/arielro1/tmp/rfproj/'
+
 
 def preprocess_dataset(root_dir: str, save_dir: str) -> None:
     """
@@ -25,6 +24,8 @@ def preprocess_dataset(root_dir: str, save_dir: str) -> None:
     """
     save_dir = os.path.join(save_dir, os.path.basename(root_dir))
     os.makedirs(save_dir, exist_ok=True)
+
+    # for deleting the dataset by code
     # for f in tqdm(glob.glob(os.path.join(save_dir, "*.npy"))):
     #     os.remove(f)
 
@@ -44,7 +45,7 @@ def preprocess_dataset(root_dir: str, save_dir: str) -> None:
 
 if __name__ == "__main__":
     # dataset_type = sys.argv[1]
-    dataset_type = 'QPSK_Comm2andEMI1'
+    dataset_type = 'QPSK_CommSiganl2_EMISignal1'
     # save_dir=f'{main_folder}/npydataset/Dataset_QPSK_Comm2andEMI1_Mixture/'
     # print(save_dir)
     # for f in tqdm(glob.glob(os.path.join(save_dir, "*.npy"))):

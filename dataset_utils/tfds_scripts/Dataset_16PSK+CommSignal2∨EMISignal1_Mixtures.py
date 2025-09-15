@@ -15,12 +15,12 @@ _CITATION = """
 MIT, “RF Challenge - AI Accelerator.” https://rfchallenge.mit.edu/
 """
 
-soi_type = 'QPSK'
-interference_sig_type = 'Comm2andEMI1'
+soi_type = '16PSK'
+interference_sig_type = 'CommSignal2∨EMISignal1'
 sig_types = [f'{soi_type}_CommSignal2_mixture', f'{soi_type}_EMISignal1_mixture']
 
-class DatasetQpskComm2andEmi1Mixture(tfds.core.GeneratorBasedBuilder):
-    VERSION = tfds.core.Version('0.2.1')
+class Dataset_16pskCommsignal2Emisignal1Mixture(tfds.core.GeneratorBasedBuilder):
+    VERSION = tfds.core.Version('0.2.3')
     RELEASE_NOTES = {
         '0.2.1': 'RFChallenge 2023 release.',
     }
@@ -41,7 +41,7 @@ class DatasetQpskComm2andEmi1Mixture(tfds.core.GeneratorBasedBuilder):
 
     def _split_generators(self, dl_manager: tfds.download.DownloadManager):
         """Returns SplitGenerators."""
-        path = os.path.join('dataset', f'Dataset_{soi_type}_{interference_sig_type}_Mixture')
+        path = os.path.join('serverdata','dataset', f'Dataset_{soi_type}+{interference_sig_type}_Mixture')
 
         return {
             'train': self._generate_examples(path),

@@ -19,8 +19,12 @@ from tqdm import tqdm
 import time
 import pickle
 
-import rfcutils
 import tensorflow as tf
+# gpus = tf.config.list_physical_devices('GPU')
+# tf.config.set_visible_devices(gpus[1], 'GPU')
+# tf.config.experimental.set_memory_growth(gpus[1], True)
+
+import rfcutils
 
 get_db = lambda p: 10 * np.log10(p)
 get_pow = lambda s: np.mean(np.abs(s) ** 2)
@@ -39,6 +43,10 @@ def get_soi_generation_fn(soi_sig_type):
         generate_soi = lambda n, s_len: rfcutils.generate_qam16_signal(n, s_len // 16)
     elif soi_sig_type == 'QPSK2':
         generate_soi = lambda n, s_len: rfcutils.generate_qpsk2_signal(n, s_len // 4)
+    elif soi_sig_type == '8PSK':
+        generate_soi = lambda n, s_len: rfcutils.generate_8psk_signal(n, s_len // 16)
+    elif soi_sig_type == '16PSK':
+        generate_soi = lambda n, s_len: rfcutils.generate_16psk_signal(n, s_len // 16)
     elif soi_sig_type == 'OFDMQPSK':
         generate_soi = lambda n, s_len: rfcutils.generate_ofdm_signal(n, s_len // 80)
     elif soi_sig_type == 'CommSignal2':
@@ -108,10 +116,10 @@ if __name__ == "__main__":
     parser.add_argument('-n', '--n_examples', default=240000, type=int, help='')
     parser.add_argument('-b', '--n_per_batch', default=4000, type=int, help='')
     parser.add_argument('-d', '--dataset', default='train', help='')
-    parser.add_argument('-seed' ,'--random_seed', default=0, type=int, help='')
+    parser.add_argument('-seed', '--random_seed', default=0, type=int, help='')
     parser.add_argument('-v', '--verbosity', default=1, help='')
-    parser.add_argument('-s','--soi_sig_type', help='')
-    parser.add_argument('-i','--interference_sig_type', help='')
+    parser.add_argument('-s', '--soi_sig_type', help='')
+    parser.add_argument('-i', '--interference_sig_type', help='')
     args = parser.parse_args()
 
     soi_type = args.soi_sig_type
@@ -126,12 +134,11 @@ if __name__ == "__main__":
 
     # Generate synthetic dataset based on input arguments
     dataset_type = args.dataset
-    #foldername = os.path.join('dataset', f'Dataset_{soi_type}_{interference_sig_type}_Mixture')
+    #foldername = os.path.join('serverdata','dataset', f'Dataset_{soi_type}_{interference_sig_type}_Mixture')
 
-    type1 = 'CommSignal2'
+    type1 = 'CommSignal3'
     type2 = 'CommSignal5G1'
-
-    foldername = os.path.join('dataset', f'Dataset_{soi_type}_{type1}+{type2}')
+    foldername = os.path.join('serverdata', 'dataset', f'Dataset_{soi_type}+{type1}∨{type2}_Mixture')
 
     generate_dataset(sig_data, soi_type, interference_sig_type, args.sig_len, args.n_examples, args.n_per_batch,
                      foldername, args.random_seed, args.verbosity)

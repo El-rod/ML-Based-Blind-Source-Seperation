@@ -9,20 +9,20 @@ import h5py
 import numpy as np
 
 _DESCRIPTION = """
-RFChallenge at MIT v0.2.0
+RFChallenge at MIT v0.2.1
 """
 _CITATION = """
 MIT, “RF Challenge - AI Accelerator.” https://rfchallenge.mit.edu/
 """
 
-soi_type = 'OFDMQPSK'
-interference_sig_type = 'CommSignal5G1'
+soi_type = '8PSK'
+interference_sig_type = 'CommSignal2∨EMISignal1'
+sig_types = [f'{soi_type}_CommSignal2_mixture', f'{soi_type}_EMISignal1_mixture']
 
-
-class DatasetOfdmqpskCommsignal5g1Mixture(tfds.core.GeneratorBasedBuilder):
-    VERSION = tfds.core.Version('0.2.0')
+class Dataset_8pskCommsignal2Emisignal1Mixture(tfds.core.GeneratorBasedBuilder):
+    VERSION = tfds.core.Version('0.2.3')
     RELEASE_NOTES = {
-        '0.2.0': 'RFChallenge 2023 release.',
+        '0.2.1': 'RFChallenge 2023 release.',
     }
 
     def _info(self) -> tfds.core.DatasetInfo:
@@ -33,15 +33,15 @@ class DatasetOfdmqpskCommsignal5g1Mixture(tfds.core.GeneratorBasedBuilder):
             features=tfds.features.FeaturesDict({
                 'mixture': tfds.features.Tensor(shape=(None, 2), dtype=tf.float32),
                 'signal': tfds.features.Tensor(shape=(None, 2), dtype=tf.float32),
+                'sig_type': tfds.features.ClassLabel(names=sig_types),
             }),
-            supervised_keys=('mixture', 'signal'),
             homepage='https://rfchallenge.mit.edu/',
             citation=_CITATION,
         )
 
     def _split_generators(self, dl_manager: tfds.download.DownloadManager):
         """Returns SplitGenerators."""
-        path = os.path.join('dataset', f'Dataset_{soi_type}_{interference_sig_type}_Mixture')
+        path = os.path.join('serverdata','dataset', f'Dataset_{soi_type}+{interference_sig_type}_Mixture')
 
         return {
             'train': self._generate_examples(path),
@@ -60,4 +60,5 @@ class DatasetOfdmqpskCommsignal5g1Mixture(tfds.core.GeneratorBasedBuilder):
                 yield f'data_{f}_{i}', {
                     'mixture': mixture[i],
                     'signal': target[i],
+                    'sig_type': sig_type,
                 }

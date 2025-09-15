@@ -11,11 +11,29 @@ samples_per_symbol = 16
 span_in_symbols = 8
 beta = 0.5
 
-# 4-QAM constellation
-NUM_BITS_PER_SYMBOL = 2
-constellation = sn.mapping.Constellation("qam",
-                                         NUM_BITS_PER_SYMBOL,
-                                         trainable=False)
+# 8-PSK constellation
+import numpy as np
+M = 8
+NUM_BITS_PER_SYMBOL = 3
+angles = 2 * np.pi * np.arange(M) / M
+points = np.exp(1j * angles)  # unit circle
+
+def gray_code(n):
+    return n ^ (n >> 1)
+
+# Generate Gray code mapping
+gray_indices = [gray_code(i) for i in range(M)]
+constellation_points = tf.constant(points[np.argsort(gray_indices)], dtype=tf.complex64)
+
+
+
+constellation = sn.mapping.Constellation("custom",
+                                         num_bits_per_symbol=NUM_BITS_PER_SYMBOL,
+                                         trainable=False,
+                                         initial_value=constellation_points,
+                                         center=True,
+                                         normalize=True,
+                                         dtype=tf.complex64)
                                 # trainable is false by default so...
 
 # Mapper: maps binary tensors to points of a constellation.
@@ -24,14 +42,16 @@ mapper = sn.mapping.Mapper(constellation=constellation)
 demapper = sn.mapping.Demapper("app",
                                constellation=constellation)
 
+# import matplotlib.pyplot as plt
+# constellation.show()
+# plt.show()
+
 # AWGN channel:
 # complex AWGN noise with variance N0 to the input.
 # The noise has variance N0/2 per real dimension
 awgn_channel = sn.channel.AWGN()
 
-import matplotlib.pyplot as plt
-constellation.show()
-plt.show()
+
 #
 def generate_qpsk_signal(batch_size, num_symbols, ebno_db=None):
     """
@@ -97,3 +117,4 @@ def modulate_qpsk_signal(info_bits, ebno_db=None):
         y = awgn_channel([x_rrcf, no])
     y = y * tf.math.sqrt(tf.cast(samples_per_symbol, tf.complex64))
     return y, x, info_bits, constellation
+

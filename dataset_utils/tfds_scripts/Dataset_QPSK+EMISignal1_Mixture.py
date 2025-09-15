@@ -1,4 +1,9 @@
-"""Dataset."""
+# create dataset(of tensorflow Tensor type with built-in loader)
+
+"""
+Used in conjunction with the Tensorflow UNet training scripts;
+the HDF5 files are processed into Tensorflow Datasets (TFDS) for training.
+"""
 
 import os
 import tensorflow as tf
@@ -15,11 +20,11 @@ _CITATION = """
 MIT, “RF Challenge - AI Accelerator.” https://rfchallenge.mit.edu/
 """
 
-soi_type = 'OFDMQPSK'
-interference_sig_type = 'CommSignal2'
+soi_type = 'QPSK'
+interference_sig_type = 'EMISignal1'
 
 
-class DatasetOfdmqpskCommsignal2Mixture(tfds.core.GeneratorBasedBuilder):
+class DatasetQpskEmisignal1Mixture(tfds.core.GeneratorBasedBuilder):
     VERSION = tfds.core.Version('0.2.0')
     RELEASE_NOTES = {
         '0.2.0': 'RFChallenge 2023 release.',
@@ -41,7 +46,7 @@ class DatasetOfdmqpskCommsignal2Mixture(tfds.core.GeneratorBasedBuilder):
 
     def _split_generators(self, dl_manager: tfds.download.DownloadManager):
         """Returns SplitGenerators."""
-        path = os.path.join('dataset', f'Dataset_{soi_type}_{interference_sig_type}_Mixture')
+        path = os.path.join('dataset', f'Dataset_{soi_type}+{interference_sig_type}_Mixture')
 
         return {
             'train': self._generate_examples(path),
