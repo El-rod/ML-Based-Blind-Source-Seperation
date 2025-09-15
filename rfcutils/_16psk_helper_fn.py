@@ -1,8 +1,7 @@
 import sionna as sn
 import tensorflow as tf
 
-from rrc_helper_fn import matched_filter
-
+from .rrc_helper_fn import matched_filter
 
 # Binary source to generate uniform i.i.d. bits (random binary tensors)
 binary_source = sn.utils.BinarySource()
@@ -11,21 +10,22 @@ samples_per_symbol = 16
 span_in_symbols = 8
 beta = 0.5
 
-# 8-PSK constellation
+# 16-PSK constellation
 import numpy as np
-M = 8
-NUM_BITS_PER_SYMBOL = 3
-angles = 2 * np.pi * np.arange(M) / M
-points = np.exp(1j * angles)  # unit circle
+
+M = 16
+NUM_BITS_PER_SYMBOL = 4
+
 
 def gray_code(n):
     return n ^ (n >> 1)
 
-# Generate Gray code mapping
+
 gray_indices = [gray_code(i) for i in range(M)]
-constellation_points = tf.constant(points[np.argsort(gray_indices)], dtype=tf.complex64)
 
-
+angles = 2 * np.pi * np.arange(M) / M
+points = np.exp(1j * angles)  # unit circle
+constellation_points = tf.constant(points[gray_indices], dtype=tf.complex64)
 
 constellation = sn.mapping.Constellation("custom",
                                          num_bits_per_symbol=NUM_BITS_PER_SYMBOL,
@@ -34,17 +34,12 @@ constellation = sn.mapping.Constellation("custom",
                                          center=True,
                                          normalize=True,
                                          dtype=tf.complex64)
-                                # trainable is false by default so...
 
 # Mapper: maps binary tensors to points of a constellation.
 mapper = sn.mapping.Mapper(constellation=constellation)
 # Demapper: computes log-likelihood ratios (LLRs) or hard-decisions on bits for a tensor of received symbols.
 demapper = sn.mapping.Demapper("app",
                                constellation=constellation)
-
-# import matplotlib.pyplot as plt
-# constellation.show()
-# plt.show()
 
 # AWGN channel:
 # complex AWGN noise with variance N0 to the input.
@@ -53,7 +48,7 @@ awgn_channel = sn.channel.AWGN()
 
 
 #
-def generate_qpsk_signal(batch_size, num_symbols, ebno_db=None):
+def generate_16psk_signal(batch_size, num_symbols, ebno_db=None):
     """
     batch_size: how many
     num_symbols: number of symbols
@@ -62,10 +57,10 @@ def generate_qpsk_signal(batch_size, num_symbols, ebno_db=None):
     returns QPSK signal with the specified parameters
     """
     bits = binary_source([batch_size, num_symbols * NUM_BITS_PER_SYMBOL])  # Blocklength
-    return modulate_qpsk_signal(bits, ebno_db)
+    return modulate_16psk_signal(bits, ebno_db)
 
 
-def qpsk_matched_filter_demod(sig, no=1e-4, soft_demod=False):
+def _16psk_matched_filter_demod(sig, no=1e-4, soft_demod=False):
     """
     sig: signal (the received symbols)
     no: N0 – noise variance estimate
@@ -90,7 +85,7 @@ def qpsk_matched_filter_demod(sig, no=1e-4, soft_demod=False):
     return tf.cast(llr > 0, tf.float32), x_hat
 
 
-def modulate_qpsk_signal(info_bits, ebno_db=None):
+def modulate_16psk_signal(info_bits, ebno_db=None):
     """
     info_bits: transmitted information bits to be modulated
     ebno_db: energy per bit to noise power spectral density ratio
@@ -117,4 +112,3 @@ def modulate_qpsk_signal(info_bits, ebno_db=None):
         y = awgn_channel([x_rrcf, no])
     y = y * tf.math.sqrt(tf.cast(samples_per_symbol, tf.complex64))
     return y, x, info_bits, constellation
-

@@ -10,7 +10,6 @@ from .rrc_helper_fn import matched_filter
 # Binary source to generate uniform i.i.d. bits
 binary_source = sn.utils.BinarySource()
 
-
 samples_per_symbol = 4
 span_in_symbols = 8
 beta = 0.5
