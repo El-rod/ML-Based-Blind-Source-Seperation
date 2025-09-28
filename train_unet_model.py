@@ -49,9 +49,11 @@ def train_script(idx):
                           data_dir='serverdata/tfds'
                           )
 
+    # when as_supervised=True
     # def extract_example(mixture, target):
     #     return mixture, target
 
+    # when as_supervised=False
     def extract_example(example):
         return example['mixture'], example['signal']
 
