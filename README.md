@@ -14,15 +14,14 @@ For generating datasets of signal mixtures, the project used the [RF Challenge I
 QPSK CT-DNN weights for the UNet and WaveNet can be obtained here: [reference_models.zip](https://www.dropbox.com/scl/fi/890vztq67krephwyr0whb/reference_models.zip?rlkey=6yct3w8rx183f0l3ok2my6rej&dl=0)
 (`/models` folder for UNet model, `/torchmodels` for WaveNet Model)
 
-8/16PSK CT-UNet weights, along with all MT-UNet and 8L-MT-UNet weights can be obtained [here]([link TBA](https://www.dropbox.com/scl/fi/gzriho4wv8zeodrswcejm/unet_models.zip?rlkey=qhejjcme6m88roktmgvlfkdyf&st=qhv4vs4t&dl=0)).
+8/16PSK CT-UNet weights, along with all MT-UNet and 8L-MT-UNet weights can be obtained [here](https://www.dropbox.com/scl/fi/gzriho4wv8zeodrswcejm/unet_models.zip?rlkey=qhejjcme6m88roktmgvlfkdyf&st=qhv4vs4t&dl=0)).
 
 Extra weights of models that were also trained in the project can be obtained [here](https://www.dropbox.com/scl/fi/ijg3v1xfgxy7eu3vodf59/extra_models.zip?rlkey=glpxauktf53mpzy6bqr2smeck&st=n0nl2qne&dl=0).
 
 #### File Descriptions:
 
-For a complete overview of the dependencies within our Anaconda environment, please refer [here (tf_env)](https://github.com/amirweiss15/ICC2026_dts_vs_ujm/blob/main/tf_env.yml). 
-
-note: since the interference mixture notation for K=2 "b1/b2" can be problematic as a file path name, we have decided to denote it in the code as "b1∨b2", where ∨ is the logical "or" operation symbol.
+- For a complete overview of the dependencies within of the UNet's Anaconda environment, please refer [here (tf_env)](https://github.com/amirweiss15/ICC2026_dts_vs_ujm/blob/main/tf_env.yml).
+- For a complete overview of the dependencies within of the WaveNet's Anaconda environment, please refer [here (pytorch_env)][(https://github.com/amirweiss15/ICC2026_dts_vs_ujm/blob/main/tf_env.yml)](https://github.com/El-rod/ML-Based-Blind-Source-Seperation/blob/main/pytorch_env.yml). 
 
 ## Files for training:
 
