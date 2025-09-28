@@ -1,4 +1,4 @@
-To build a tfds dataset out of the h5 files in your `/dataset` directory, run the following command in the terminal:
+To build a tfds dataset out of the HDF5 files in your `/dataset` directory, run the following command in the terminal:
 
 `tfds build dataset_utils/tfds_scripts/Dataset_SOI+IPM_Mixtures.py --data_dir serverdata/tfds/`
 
