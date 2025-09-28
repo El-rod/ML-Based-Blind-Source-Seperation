@@ -1,4 +1,4 @@
-"""Dataset."""
+"""TFDS Dataset Setup Script"""
 
 import os
 import tensorflow as tf

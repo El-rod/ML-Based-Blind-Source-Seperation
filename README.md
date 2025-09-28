@@ -1,6 +1,6 @@
 # Machine-Learning-Based Blind Source Separation
 4-th year`s Final Project, for the partial fulfillment of the requirements for a B.Sc. Degree.
-Bar-Ilan University, the Faculty of Engineering, Project no. 507 (of year 2024).
+Bar-Ilan University, the Faculty of Engineering, Project No. 507 (of year 2024).
 
 ## About this Repository
 
@@ -29,6 +29,9 @@ note: since the interference mixture notation for K=2 "b1/b2" can be problematic
 (1). `generate_training_dataset.py`: python script that creates D sample mixtures with varying random target SINR levels (ranging between -33 dB and 3 dB). For each signal mixture configuration, the output is saved as D/n HDF5 files, each containing n mixtures. For the paper we used the default RF Challenge setup of D=240000 and n=4000, making 60 HDF5 files for each mixture dataset.
 
 (2). `example_tfds_preprocess_mixture_dataset.py`: preprocesses the training dataset created in (1) into a supervised-learning TensorFlow dataset. In the terminal use the command `tfds build dataset_utils/example_tfds_preprocess_mixture_dataset.py --data_dir tfds/` in order to run it.
+Used in conjunction with the Tensorflow UNet training scripts;
+the HDF5 files are processed into Tensorflow Datasets (TFDS) for training.
+
 
 (3). `train_unet_model.py`: trains the Tensorflow UNet architecture (see `src/unet_model.py` and `unet_8layered_model.py`) on the tfds dataset created in (2).
 

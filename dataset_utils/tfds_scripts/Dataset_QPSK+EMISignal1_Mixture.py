@@ -1,9 +1,4 @@
-# create dataset(of tensorflow Tensor type with built-in loader)
-
-"""
-Used in conjunction with the Tensorflow UNet training scripts;
-the HDF5 files are processed into Tensorflow Datasets (TFDS) for training.
-"""
+"""TFDS Dataset Setup Script"""
 
 import os
 import tensorflow as tf
