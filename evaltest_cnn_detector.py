@@ -1,3 +1,7 @@
+"""
+Script for testing the CNN detector
+"""
+
 import pickle
 import os
 import numpy as np

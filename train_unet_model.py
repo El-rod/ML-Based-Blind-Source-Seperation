@@ -3,10 +3,7 @@ import sys
 import tensorflow_datasets as tfds
 import tensorflow as tf
 
-gpus = tf.config.list_physical_devices('GPU')
-tf.config.set_visible_devices(gpus[1], 'GPU')
-tf.config.experimental.set_memory_growth(gpus[1], True)
-
+# choose which UNet model to train:
 #from src import unet_model as unet
 from src import unet_8layered_model as unet
 
@@ -17,7 +14,7 @@ mirrored_strategy = tf.distribute.MirroredStrategy(devices=["/gpu:0", "/gpu:1"])
 
 bsz = 32
 EPOCHS = 18
-suffix = 'unet8_MT'
+suffix = 'unet8_MT' # unet, unet_MT
 all_datasets = ['dataset_qpsk_commsignal3_emisignal1_mixture']
 
 

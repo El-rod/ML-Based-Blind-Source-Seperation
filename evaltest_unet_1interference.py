@@ -14,12 +14,6 @@ all_sinr = np.arange(-30, 0.1, 3)
 sig_len = 40960
 n_per_batch = 100
 
-
-# gpus = tf.config.list_physical_devices('GPU')
-# tf.config.set_visible_devices(gpus[1], 'GPU')
-# tf.config.experimental.set_memory_growth(gpus[1], True)
-
-
 def get_soi_demod_fn(soi_sig_type):
     import rfcutils
     if soi_sig_type == 'QPSK':

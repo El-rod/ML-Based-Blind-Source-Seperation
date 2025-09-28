@@ -10,10 +10,6 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
 # 2 = INFO and WARNING messages are not printed
 # 3 = INFO, WARNING, and ERROR messages are not printed
 
-# gpus = tf.config.list_physical_devices('GPU')
-# tf.config.set_visible_devices(gpus[1], 'GPU')
-# tf.config.experimental.set_memory_growth(gpus[1], True)
-
 all_sinr = np.arange(-30, 0.1, 3)
 sig_len = 40960
 
@@ -98,6 +94,8 @@ if __name__ == "__main__":
         model1 = f'dataset_{soi_type.lower()}_{interference_types[0].lower()}_mixture_unet'
         model2 = f'dataset_{soi_type.lower()}_{interference_types[1].lower()}_mixture_unet'
 
+        # the following commented out code was a proof of concept for testing the CNN detector:
+
         # from ariel_evaltest_classifier import run_inference_classifier as classifier_predict
         # predicted_sig_type_index = classifier_predict(all_sig_mixture, 2)
         # print(predicted_sig_type_index.shape)
@@ -106,6 +104,7 @@ if __name__ == "__main__":
         # sig_type1_indicies = (predicted_sig_type_labels==interference_types[0]).nonzero()[0]
         # sig_type2_indicies = (predicted_sig_type_labels==interference_types[1]).nonzero()[0]
 
+        # oracle detector:
         sig_type1_indicies = (meta_data[:, 4] == interference_types[0]).nonzero()[0]
         sig_type2_indicies = (meta_data[:, 4] == interference_types[1]).nonzero()[0]
 
