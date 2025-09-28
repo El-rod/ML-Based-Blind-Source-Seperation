@@ -1,4 +1,6 @@
 # Machine-Learning-Based Blind Source Separation
+4-th year`s Final Project, for the partial fulfillment of the requirements for a B.Sc. Degree.
+Bar-Ilan University, the Faculty of Engineering, Project no. 507 (of year 2024).
 
 ## About this Repository
 
