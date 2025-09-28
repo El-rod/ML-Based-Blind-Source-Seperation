@@ -1,22 +1,22 @@
 # Machine-Learning-Based Blind Source Separation
-4-th year`s Final Project, for the partial fulfillment of the requirements for a B.Sc. Degree.
-Bar-Ilan University, the Faculty of Engineering, Project No. 507 (of year 2024).
+- 4-th year's Final Project, for the partial fulfillment of the requirements for a B.Sc. Degree.
+
+- Bar-Ilan University, the Faculty of Engineering, Project No. 507 (of year 2024).
 
 ## About this Repository
 
-
-This code is a modification of the RF Challenge [starter code](https://github.com/RFChallenge/icassp2024rfchallenge)
+This code is a modification of the RF Challenge [starter code](https://github.com/RFChallenge/icassp2024rfchallenge), where it was updated with quality of life changes, and modified for simulations of training and testing signal mixture source separation via DNNs with interference uncertainty. The interference mixture is referred as the interference probability mixture (IPM), and the code supports K=2 types of interference.
 
 ## RF Challenge Dataset
+For generating datasets of signal mixtures, the project used the [RF Challenge Interference Dataset](https://www.dropbox.com/scl/fi/zlvgxlhp8het8j8swchgg/dataset.zip?rlkey=4rrm2eyvjgi155ceg8gxb5fc4&dl=0).
 
-[Click here for the RF Challenge Interference Dataset](https://www.dropbox.com/scl/fi/zlvgxlhp8het8j8swchgg/dataset.zip?rlkey=4rrm2eyvjgi155ceg8gxb5fc4&dl=0)
+## Weights
+QPSK CT-DNN weights for the UNet and WaveNet can be obtained here: [reference_models.zip](https://www.dropbox.com/scl/fi/890vztq67krephwyr0whb/reference_models.zip?rlkey=6yct3w8rx183f0l3ok2my6rej&dl=0)
+(`/models` folder for UNet model, `/torchmodels` for WaveNet Model)
 
+8/16PSK CT-UNet weights, along with all MT-UNet and 8L-MT-UNet weights can be obtained [here]([link TBA](https://www.dropbox.com/scl/fi/gzriho4wv8zeodrswcejm/unet_models.zip?rlkey=qhejjcme6m88roktmgvlfkdyf&st=qhv4vs4t&dl=0)).
 
-## weights
-QPSK DTS weights for the UNet can be obtained here: [reference_models.zip](https://www.dropbox.com/scl/fi/890vztq67krephwyr0whb/reference_models.zip?rlkey=6yct3w8rx183f0l3ok2my6rej&dl=0)
-(`/models` folder, `/torchmodels` is irrelavant)
-
-8/16PSK DTS weights, along with all 5L-UJM and UJM weights can be obtained here: (insert link).
+Extra weights of models that were also trained in the project can be obtained [here](https://www.dropbox.com/scl/fi/ijg3v1xfgxy7eu3vodf59/extra_models.zip?rlkey=glpxauktf53mpzy6bqr2smeck&st=n0nl2qne&dl=0).
 
 #### File Descriptions:
 
