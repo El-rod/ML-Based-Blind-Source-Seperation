@@ -11,14 +11,14 @@ This code is a modification of the RF Challenge [starter code](https://github.co
 For generating datasets of signal mixtures, the project used the [RF Challenge Interference Dataset](https://www.dropbox.com/scl/fi/zlvgxlhp8het8j8swchgg/dataset.zip?rlkey=4rrm2eyvjgi155ceg8gxb5fc4&dl=0).
 
 ## Weights
-QPSK CT-DNN weights for the UNet and WaveNet can be obtained here: [reference_models.zip](https://www.dropbox.com/scl/fi/890vztq67krephwyr0whb/reference_models.zip?rlkey=6yct3w8rx183f0l3ok2my6rej&dl=0)
-(`/models` folder for UNet model, `/torchmodels` for WaveNet Model)
+- QPSK CT-DNN weights for the UNet and WaveNet can be obtained here: [reference_models.zip](https://www.dropbox.com/scl/fi/890vztq67krephwyr0whb/reference_models.zip?rlkey=6yct3w8rx183f0l3ok2my6rej&dl=0)
+(`/models` folder for UNet models, `/torchmodels` for WaveNet models).
 
-8/16PSK CT-UNet weights, along with all MT-UNet and 8L-MT-UNet weights can be obtained [here](https://www.dropbox.com/scl/fi/gzriho4wv8zeodrswcejm/unet_models.zip?rlkey=qhejjcme6m88roktmgvlfkdyf&st=qhv4vs4t&dl=0)).
+- 8/16PSK CT-UNet weights, along with all MT-UNet and 8L-MT-UNet weights can be obtained [here](https://www.dropbox.com/scl/fi/gzriho4wv8zeodrswcejm/unet_models.zip?rlkey=qhejjcme6m88roktmgvlfkdyf&st=qhv4vs4t&dl=0)).
 
-Extra weights of models that were also trained in the project can be obtained [here](https://www.dropbox.com/scl/fi/ijg3v1xfgxy7eu3vodf59/extra_models.zip?rlkey=glpxauktf53mpzy6bqr2smeck&st=n0nl2qne&dl=0).
+- Extra weights of models that were also trained in the project can be obtained [here](https://www.dropbox.com/scl/fi/ijg3v1xfgxy7eu3vodf59/extra_models.zip?rlkey=glpxauktf53mpzy6bqr2smeck&st=n0nl2qne&dl=0).
 
-#### File Descriptions:
+# File Descriptions:
 
 - For a complete overview of the dependencies within of the UNet's Anaconda environment, please refer [here (tf_env)](https://github.com/El-rod/ML-Based-Blind-Source-Seperation/blob/main/tf_env.yml).
 - For a complete overview of the dependencies within of the WaveNet's Anaconda environment, please refer [here (pytorch_env)](https://github.com/El-rod/ML-Based-Blind-Source-Seperation/blob/main/pytorch_env.yml). 
