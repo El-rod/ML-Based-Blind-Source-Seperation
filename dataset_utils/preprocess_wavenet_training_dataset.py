@@ -18,16 +18,12 @@ def preprocess_dataset(root_dir: str, save_dir: str) -> None:
     root_dir: root parent directory to save the dataset
     save_dir: save folder directory name
 
-    saves mixture as numpy file,
+    saves mixture as numpy files,
     in the format of a dictionary with pytorch tensors:
     sample_mix, sample_soi
     """
     save_dir = os.path.join(save_dir, os.path.basename(root_dir))
     os.makedirs(save_dir, exist_ok=True)
-
-    # for deleting the dataset by code
-    # for f in tqdm(glob.glob(os.path.join(save_dir, "*.npy"))):
-    #     os.remove(f)
 
     count = 0
     for folder in tqdm(glob.glob(os.path.join(root_dir, "*.h5"))):
@@ -44,11 +40,6 @@ def preprocess_dataset(root_dir: str, save_dir: str) -> None:
 
 
 if __name__ == "__main__":
-    # dataset_type = sys.argv[1]
-    dataset_type = 'QPSK_CommSiganl2_EMISignal1'
-    # save_dir=f'{main_folder}/npydataset/Dataset_QPSK_Comm2andEMI1_Mixture/'
-    # print(save_dir)
-    # for f in tqdm(glob.glob(os.path.join(save_dir, "*.npy"))):
-    #     os.remove(f)
-    preprocess_dataset(root_dir=f'{main_folder}/dataset/Dataset_{dataset_type}_Mixture_rare30',
+    dataset_type = 'QPSK+CommSiganl2∨EMISignal1'
+    preprocess_dataset(root_dir=f'{main_folder}/dataset/Dataset_{dataset_type}_Mixture',
                        save_dir=f'{main_folder}/npydataset/')

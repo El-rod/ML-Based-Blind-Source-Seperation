@@ -1,8 +1,8 @@
 """
-Another python script that creates 240,000 sample mixtures with varying random target SINR levels
+A python script that creates 240,000 sample mixtures with varying random target SINR levels
 (ranging between -33 dB and 3 dB).
 For each signal mixture configuration, the output is saved as 60 HDF5 files, each containing 4,000 mixtures.
-This is the organizers' choice when generating the training set
+This is the RF Challenge organizers' choice when generating the training set
 (for better generalization properties, while setting aside the metadata for implementation simplicity).
 """
 
@@ -134,11 +134,15 @@ if __name__ == "__main__":
 
     # Generate synthetic dataset based on input arguments
     dataset_type = args.dataset
-    #foldername = os.path.join('serverdata','dataset', f'Dataset_{soi_type}_{interference_sig_type}_Mixture')
 
-    type1 = 'CommSignal3'
-    type2 = 'CommSignal5G1'
-    foldername = os.path.join('serverdata', 'dataset', f'Dataset_{soi_type}+{type1}∨{type2}_Mixture')
+    # for CT-DNN dataset training folder
+    foldername = os.path.join('serverdata','dataset', f'Dataset_{soi_type}_{interference_sig_type}_Mixture')
+
+    # for MT-DNN dataset training folder, set the desired interference types, run the script twice for each interference,
+    # the examples will be then shuffled by tfds.
+    # type1 = 'CommSignal3'
+    # type2 = 'CommSignal5G1'
+    # foldername = os.path.join('serverdata', 'dataset', f'Dataset_{soi_type}+{type1}∨{type2}_Mixture')
 
     generate_dataset(sig_data, soi_type, interference_sig_type, args.sig_len, args.n_examples, args.n_per_batch,
                      foldername, args.random_seed, args.verbosity)

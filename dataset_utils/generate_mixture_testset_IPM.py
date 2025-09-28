@@ -1,9 +1,8 @@
 """
-A python script for generating example mixtures for training;
-this script creates a training set that is more aligned with the TestSet’s specifications
-(e.g., focusing solely on the 11 discrete target SINR levels).
-This script saves a pickle file dataset/Training_Dataset_[SOI Type]_[Interference Type].pkl'
-that contains all_sig_mixture, all_sig1_groundtruth, all_bits1_groundtruth, meta_data.
+A python script for generating example mixtures for testing SOI+IPM for K=2;
+focusing solely on the 11 discrete target SINR levels.
+This script saves a pickle file dataset/Training_Dataset_[SOI Type]+[Interference Type 1]∨[Interference Type 2].pkl'
+that contains all_sig_mixture, all_sig_groundtruth, all_bits_groundtruth, meta_data.
 """
 
 import os, sys
@@ -14,10 +13,6 @@ from tqdm import tqdm
 import pickle
 import argparse
 import tensorflow as tf
-
-# gpus = tf.config.list_physical_devices('GPU')
-# tf.config.set_visible_devices(gpus[1], 'GPU')
-# tf.config.experimental.set_memory_growth(gpus[1], True)
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -61,6 +56,7 @@ def get_soi_generation_fn(soi_sig_type):
 
 def generate_demod_testmixture(soi_type, interference_sig_type, n_per_batch=default_n_per_batch, seed_number=0):
     generate_soi, demod_soi = get_soi_generation_fn(soi_type)
+    # load interference dataset
     with h5py.File(os.path.join('dataset', 'testset1_frame', interference_sig_type + '_test1_raw_data.h5'),
                    'r') as data_h5file:
         sig_data = np.array(data_h5file.get('dataset'))
@@ -72,6 +68,7 @@ def generate_demod_testmixture(soi_type, interference_sig_type, n_per_batch=defa
     np.random.seed(seed_number)
     tf.random.set_seed(seed_number)
 
+    # generate signal mixture as described in the RF Challenge paper, section IV.
     all_sig_mixture, all_sig1, all_bits1, meta_data = [], [], [], []
     for idx, sinr in tqdm(enumerate(all_sinr)):
         sig1, _, bits1, _ = generate_soi(n_per_batch, sig_len)
@@ -123,7 +120,8 @@ def generate_combined_testmixture(soi_type, interference_type1, interference_typ
 
     meta_data = np.concatenate(meta_data, axis=1).T
 
-    # sort by snr
+    # sort by sinr levels so that the two interference types are ordered correctly
+    # since they are generated independently
     sort_indices = meta_data[:, 1].astype('float64').argsort()
     all_sig_mixture = all_sig_mixture[sort_indices, :]
     all_sig = all_sig[sort_indices, :]
@@ -138,6 +136,7 @@ def generate_combined_testmixture(soi_type, interference_type1, interference_typ
 
 
 if __name__ == "__main__":
+    # optional to input parameters through terminal
     parser = argparse.ArgumentParser(description='Generate Synthetic Dataset')
     parser.add_argument('-b', '--n_per_batch', default=100, type=int, help='')
     parser.add_argument('-seed', '--random_seed', default=0, type=int, help='')
