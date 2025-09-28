@@ -1,3 +1,7 @@
+"""
+An 8 Layered variant of the 5 layered UNet of "unet_model.py"
+"""
+
 import tensorflow as tf
 from tensorflow.keras import layers
 from tensorflow.keras.models import Model

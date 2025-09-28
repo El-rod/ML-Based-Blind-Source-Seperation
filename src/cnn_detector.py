@@ -1,3 +1,7 @@
+"""
+A "lazy" CNN detector that is just the UNet model but cut in half.
+"""
+
 import tensorflow as tf
 from tensorflow.keras import layers, models
 

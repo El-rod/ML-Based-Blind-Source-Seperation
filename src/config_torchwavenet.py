@@ -3,7 +3,7 @@ The configuration dataclass for the Torch Wavenet training,
 the default values are overwritten in "train_torchwavenet.py"
 to the selected yml configuration file from the "/configs/" directory.
 
-(file updated to python 3.11 bt adding "field")
+(file updated to python 3.11 by adding the "field" import)
 """
 
 from dataclasses import MISSING, asdict, dataclass, field
