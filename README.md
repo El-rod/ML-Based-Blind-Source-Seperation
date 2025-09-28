@@ -21,7 +21,7 @@ Extra weights of models that were also trained in the project can be obtained [h
 #### File Descriptions:
 
 - For a complete overview of the dependencies within of the UNet's Anaconda environment, please refer [here (tf_env)](https://github.com/amirweiss15/ICC2026_dts_vs_ujm/blob/main/tf_env.yml).
-- For a complete overview of the dependencies within of the WaveNet's Anaconda environment, please refer [here (pytorch_env)][(https://github.com/amirweiss15/ICC2026_dts_vs_ujm/blob/main/tf_env.yml)](https://github.com/El-rod/ML-Based-Blind-Source-Seperation/blob/main/pytorch_env.yml). 
+- For a complete overview of the dependencies within of the WaveNet's Anaconda environment, please refer [here (pytorch_env)](https://github.com/El-rod/ML-Based-Blind-Source-Seperation/blob/main/pytorch_env.yml). 
 
 ## Files for training:
 
