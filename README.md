@@ -21,18 +21,22 @@ For generating datasets of signal mixtures, the project used the [RF Challenge I
 # File Descriptions:
 
 - For a complete overview of the dependencies within of the UNet's Anaconda environment, please refer [here (tf_env)](https://github.com/El-rod/ML-Based-Blind-Source-Seperation/blob/main/tf_env.yml).
-- For a complete overview of the dependencies within of the WaveNet's Anaconda environment, please refer [here (pytorch_env)](https://github.com/El-rod/ML-Based-Blind-Source-Seperation/blob/main/pytorch_env.yml). 
+- For a complete overview of the dependencies within of the WaveNet's Anaconda environment, please refer [here (pytorch_env)](https://github.com/El-rod/ML-Based-Blind-Source-Seperation/blob/main/pytorch_env.yml).
 
 ## Files for training:
 
-(1). `generate_training_dataset.py`: python script that creates D sample mixtures with varying random target SINR levels (ranging between -33 dB and 3 dB). For each signal mixture configuration, the output is saved as D/n HDF5 files, each containing n mixtures. For the paper we used the default RF Challenge setup of D=240000 and n=4000, making 60 HDF5 files for each mixture dataset.
+(1) `generate_training_dataset.py`: python script that creates D sample mixtures with varying random target SINR levels (ranging between -33 dB and 3 dB). For each signal mixture configuration, the output is saved as D/n HDF5 files, each containing n mixtures. The project used the default RF Challenge setup of D=240000 and n=4000, making 60 HDF5 files for each mixture dataset. 
+####Note: `n_per_batch` is a misleading variable name, a more suitable one is `n_per_sinr`, but kept for legacy reasons.
 
-(2). `example_tfds_preprocess_mixture_dataset.py`: preprocesses the training dataset created in (1) into a supervised-learning TensorFlow dataset. In the terminal use the command `tfds build dataset_utils/example_tfds_preprocess_mixture_dataset.py --data_dir tfds/` in order to run it.
-Used in conjunction with the Tensorflow UNet training scripts;
-the HDF5 files are processed into Tensorflow Datasets (TFDS) for training.
+(2) `/tfds_scripts/`: each file in this folder preprocesses the training dataset HDF5 files created in (1) into a supervised-learning TensorFlow dataset for the UNet model. See the [note](https://github.com/El-rod/ML-Based-Blind-Source-Seperation/blob/main/dataset_utils/tfds_scripts/NOTE.md) in the folder for more infromation.
 
+(3) `train_unet_model.py`: trains the Tensorflow UNet architecture (see `/src/unet_model.py` and `/src/unet_8layered_model.py`) on the tfds dataset created in a file from (2).
 
-(3). `train_unet_model.py`: trains the Tensorflow UNet architecture (see `src/unet_model.py` and `unet_8layered_model.py`) on the tfds dataset created in (2).
+(4)  `preprocess_wavenet_training_dataset.py`: Used in conjunction with the Torch WaveNet supervised-learning training scripts; the HDF5 files are processed into separate npy files (one file per mixture). An [associated dataloader](https://github.com/El-rod/ML-Based-Blind-Source-Seperation/blob/main/src/torchdataset.py) is supplied within the PyTorch baseline code.
+
+(5) `train_torchwavenet.py`: trains the PyTorch WaveNet architecture (see `/src/torchwavenet.py`), accompanied with dependencies including `supervised_config.yml` and the `/src/configs/` folder,  `src/torchdataset.py` as mentioned in (4), `src/learner_torchwavenet.py`, and `src/config_torchwavenet.py`.
+
+(6) `train_cnn_detector.py`: trains the proof of concept CNN Detector model (see `/src/cnn_detector.py`) on the tfds dataset created in a file from (2).
 
 ## Files for testing
 (1). `generate_mixture_with_uncertainty_testset.py`: generates a testset of a signal mixture with an interference mixture of P(b1)=p, of 11 discrete target SINR levels. Saves a pickle file `Dataset_Seed[seed]_[soi_type]+[interference_type1]∨[interference_type2].pkl` that contains `all_sig_mixture, all_sig1_groundtruth, all_bits1_groundtruth, meta_data`, sorted by SINR levels.
