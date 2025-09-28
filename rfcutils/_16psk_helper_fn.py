@@ -47,7 +47,6 @@ demapper = sn.mapping.Demapper("app",
 awgn_channel = sn.channel.AWGN()
 
 
-#
 def generate_16psk_signal(batch_size, num_symbols, ebno_db=None):
     """
     batch_size: how many

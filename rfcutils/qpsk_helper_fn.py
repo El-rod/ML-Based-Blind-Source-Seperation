@@ -15,7 +15,7 @@ NUM_BITS_PER_SYMBOL = 2
 constellation = sn.mapping.Constellation("qam",
                                          NUM_BITS_PER_SYMBOL,
                                          trainable=False)
-# trainable is false by default so...
+# trainable is false by default...
 
 # Mapper: maps binary tensors to points of a constellation.
 mapper = sn.mapping.Mapper(constellation=constellation)

@@ -1,5 +1,8 @@
-# copy of qpsk_helper_fn.py with the small change of
-# "NUM_BITS_PER_SYMBOL" from 2 to 4
+"""
+Copy of qpsk_helper_fn.py with the small change of
+"NUM_BITS_PER_SYMBOL" from 2 to 4
+"""
+
 
 
 import sionna as sn
@@ -26,9 +29,6 @@ demapper = sn.mapping.Demapper("app", constellation=constellation)
 # AWGN channel
 awgn_channel = sn.channel.AWGN()
 
-# import matplotlib.pyplot as plt
-# constellation.show()
-# plt.show()
 
 def generate_qam16_signal(batch_size, num_symbols, ebno_db=None):
     bits = binary_source([batch_size, num_symbols * NUM_BITS_PER_SYMBOL])  # Blocklength

@@ -1,0 +1,9 @@
+To view how the constellations look like,
+after initiating the "constellation" variable,
+
+write the following lines and run the script thereafter:
+
+import matplotlib.pyplot as plt
+constellation.show()
+plt.show()
+

@@ -1,6 +1,7 @@
-# copy of qpsk_helper_fn.py with the small change of
-# "samples_per_symbol" from 16 to 4
-
+"""
+Copy of qpsk_helper_fn.py with the small change of
+"samples_per_symbol" from 16 to 4
+"""
 
 import sionna as sn
 import tensorflow as tf

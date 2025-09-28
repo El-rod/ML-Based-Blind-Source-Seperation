@@ -1,11 +1,9 @@
-# won't comment until I learn this modulation with Beni and fully understand it
-
 import sionna as sn
 import numpy as np
 import tensorflow as tf
 
-NFFT = 64
-CP_LEN = 16
+NFFT = 64  # orthogonal subcarriers
+CP_LEN = 16  # cyclic prefix length
 OFDM_LEN = NFFT + CP_LEN
 CODERATE = 1
 n_streams_per_tx = 1
@@ -47,9 +45,9 @@ def get_resource_grid(num_ofdm_symbols):
 def generate_ofdm_signal(batch_size, num_ofdm_symbols, ebno_db=None):
     RESOURCE_GRID = get_resource_grid(num_ofdm_symbols)
 
-    # Number of coded bits in a resource grid
+    # number of coded bits in a resource grid
     n = int(RESOURCE_GRID.num_data_symbols * NUM_BITS_PER_SYMBOL)
-    # Number of information bits in a resource groud
+    # number of information bits in a resource groud
     k = int(n * CODERATE)
 
     bits = binary_source([batch_size, 1, n_streams_per_tx, k])
