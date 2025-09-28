@@ -25,7 +25,8 @@ For generating datasets of signal mixtures, the project used the [RF Challenge I
 
 ## Files for training:
 
-(1) `/dataset_utils/generate_training_dataset.py`: python script that creates D sample mixtures with varying random target SINR levels (ranging between -33 dB and 3 dB). For each signal mixture configuration, the output is saved as D/n HDF5 files, each containing n mixtures. The project used the default RF Challenge setup of D=240000 and n=4000, making 60 HDF5 files for each mixture dataset. 
+(1) `/dataset_utils/generate_training_dataset.py`: python script that creates D sample mixtures with varying random target SINR levels (ranging between -33 dB and 3 dB). For each signal mixture configuration, the output is saved as D/n HDF5 files, each containing n mixtures. The project used the default RF Challenge setup of D=240000 and n=4000, making 60 HDF5 files for each mixture dataset.
+
 ####Note: `n_per_batch` is a misleading variable name, a more suitable one is `n_per_sinr`, but kept for legacy reasons.
 
 (2) `/dataset_utils/tfds_scripts/`: each file in this folder preprocesses the training dataset HDF5 files created in (1) into a supervised-learning TensorFlow dataset for the UNet model. See the [note](https://github.com/El-rod/ML-Based-Blind-Source-Seperation/blob/main/dataset_utils/tfds_scripts/NOTE.md) in the folder for more infromation.
