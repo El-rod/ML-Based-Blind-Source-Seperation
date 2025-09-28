@@ -1,210 +1,48 @@
 # Machine-Learning-Based Blind Source Separation
 
-[Click here for details on the challenge setup](https://rfchallenge.mit.edu/wp-content/uploads/2023/09/ICASSP24_single_channel.pdf)
-
 ## About this Repository
-For those eager to dive in, we have prepared a concise guide to get you started.
 
-Check out [notebook/RFC_QuickStart_Guide.ipynb](https://github.com/RFChallenge/icassp2024rfchallenge/blob/0.2.0/notebook/RFC_QuickStart_Guide.ipynb) for practical code snippets. You will find steps to create a small but representative training set and steps for inference to generate your submission outputs.
-For a broader understanding and other helpful resources in the starter kit integral to the competition, please see the details and references provided below.
 
-[Link to InterferenceSet](https://www.dropbox.com/scl/fi/zlvgxlhp8het8j8swchgg/dataset.zip?rlkey=4rrm2eyvjgi155ceg8gxb5fc4&dl=0)
+This code is a modification of the RF Challenge [starter code](https://github.com/RFChallenge/icassp2024rfchallenge)
 
-## TestSet for Evaluation
+## RF Challenge Dataset
 
-This starter kit equips you with essential resources to develop signal separation and interference rejection solutions. In this competition, the crux of the evaluation hinges on your ability to handle provided signal mixtures. Your task will be twofold:
+[Click here for the RF Challenge Interference Dataset](https://www.dropbox.com/scl/fi/zlvgxlhp8het8j8swchgg/dataset.zip?rlkey=4rrm2eyvjgi155ceg8gxb5fc4&dl=0)
 
-1.  Estimate the Signal of Interest (SOI) component within the two-component mixture.
 
-2.  Deduce the best possible estimate of the underlying information bits encapsulated in the SOI.
+## weights
+QPSK DTS weights for the UNet can be obtained here: [reference_models.zip](https://www.dropbox.com/scl/fi/890vztq67krephwyr0whb/reference_models.zip?rlkey=6yct3w8rx183f0l3ok2my6rej&dl=0)
+(`/models` folder, `/torchmodels` is irrelavant)
 
-Delve into the specifics below for comprehensive details.
-
-### TestSet1:
-
-[Click here for TestSet1Mixture files](https://www.dropbox.com/scl/fi/d2kjtfmbh3mgxddbubf80/TestSet1Mixture.zip?rlkey=lwhzt1ayn2bqwosc9o9cq9dwr&dl=0)
-
-50 frames of each interference type have been reserved to form TestSet1 (interference frames). These will be released alongside the main dataset (InterferenceSet frames), and the mixtures from TestSet1Mixture are generated from this collection. Please note that although TestSet1 is available for examination, the final evaluation for participants will be based on a hidden, unreleased set (TestSet2 interference frames).
+8/16PSK DTS weights, along with all 5L-UJM and UJM weights can be obtained here: (insert link).
 
 #### File Descriptions:
 
-***`TestSet1Mixture_testmixture_[SOI Type]_[Interference Type].npy`:*** This is a numpy array of 1,100 x 40,960 np.complex64 floats; each row represents a mixture signal (40,960 complex values); the mixture signals are organized in increasing SINR, spanning 11 SINR levels with 100 mixtures per SINR level.
+For a complete overview of the dependencies within our Anaconda environment, please refer [here (tf_env)](https://github.com/amirweiss15/ICC2026_dts_vs_ujm/blob/main/tf_env.yml). 
 
-***`TestSet1Mixture_testmixture_[SOI Type]_[Interference Type]_metadata.npy`:*** This is a numpy array of 1,100 x 5 objects containing metadata information. The first column is the scalar value (k) by which the interference component is scaled; the second column is the corresponding target SINR level in dB (calculated as $10 \log_{10}(k)$ ), the third column is the actual SINR computed based on the components present in the mixture (represented as $10 \log_{10}(P_{SOI}/P_{Interference})$ ), and the fourth and fifth column are strings denoting the SOI type and interference type respectively
+note: since the interference mixture notation for K=2 "b1/b2" can be problematic as a file path name, we have decided to denote it in the code as "b1∨b2", where ∨ is the logical "or" operation symbol.
 
-Note that the Ground Truth of TestSet1Mixture will not be released. Participants are encouraged to send in their submissions at the respective intermediate deadlines (October 1st and November 1st) for evaluation against the ground truth.
+## Files for training:
 
-Participants are also provided with starter code to generate similar testing set mixtures (refer to "Helper Functions for Testing" and TestSet1Example) for their own testing.
+(1). `generate_training_dataset.py`: python script that creates D sample mixtures with varying random target SINR levels (ranging between -33 dB and 3 dB). For each signal mixture configuration, the output is saved as D/n HDF5 files, each containing n mixtures. For the paper we used the default RF Challenge setup of D=240000 and n=4000, making 60 HDF5 files for each mixture dataset.
 
-### TestSet2:
-[Click here for TestSet2Mixture files]([https://www.dropbox.com/scl/fi/d2kjtfmbh3mgxddbubf80/TestSet1Mixture.zip?rlkey=lwhzt1ayn2bqwosc9o9cq9dwr&dl=0](https://www.dropbox.com/scl/fi/m36l2imiit5svqz1yz46g/TestSet2Mixture.zip?rlkey=n5mwzi11l55l2xzfw9ee5m0ye&dl=0))
+(2). `example_tfds_preprocess_mixture_dataset.py`: preprocesses the training dataset created in (1) into a supervised-learning TensorFlow dataset. In the terminal use the command `tfds build dataset_utils/example_tfds_preprocess_mixture_dataset.py --data_dir tfds/` in order to run it.
 
-50 frames of each interference type have been designated for TestSet2. Please note that this set will not be made available during the competition.
+(3). `train_unet_model.py`: trains the Tensorflow UNet architecture (see `src/unet_model.py` and `unet_8layered_model.py`) on the tfds dataset created in (2).
 
-The format for test mixtures in TestSet2Mixture will be consistent with that of TestSet1Mixture. However, any changes or modifications to the format will be communicated to the participants as the competition progresses.
+## Files for testing
+(1). `generate_mixture_with_uncertainty_testset.py`: generates a testset of a signal mixture with an interference mixture of P(b1)=p, of 11 discrete target SINR levels. Saves a pickle file `Dataset_Seed[seed]_[soi_type]+[interference_type1]∨[interference_type2].pkl` that contains `all_sig_mixture, all_sig1_groundtruth, all_bits1_groundtruth, meta_data`, sorted by SINR levels.
 
+(2). `generate_mixture_single_interference_testset.py`: same as (1) but for p=1 only, i.e., saves it as `Dataset_Seed[seed_number]_[soi_type]+[interference_sig_type].pkl`.
 
-### Submission Specifications:
+(3). `evaltest_unet_interference_uncertainty.py`: processes the testset created in (1) on the desired UNet model (DTS, 5L-UJM, UJM), both waveform prediction and BER calculation. Saves results in the `/outputs` folder.
 
-For every configuration defined by a specific SOI Type and Interference Type, participants are required to provide:
+(4). `evaltest_unet_single_interference.py`: same as (3) but for the testset created in (2). Here interfrence type 2 (p=0) is decided by which 5L-UJM/UJM is chosen.
 
-1.  SOI Component Estimate:
--   A numpy array of dimensions 1,100 x 40,960.
--   This should contain complex values representing the estimated SOI component present.
--   Filename: `[ID String]_[TestSet Identifier]_estimated_soi_[SOI Type]_[Interference Type].npy`
-    (where ID String will be a unique identifier, e.g., your team name)
-
-2.  Information Bits Estimate:
--   A numpy array of dimensions 1,100 x B.    
--   The value of B depends on the SOI type:
-    -   B = 5,120 for QPSK SOI
-    -   B = 57,344 for OFDMQPSK SOI
--   The array should exclusively contain values of 1’s and 0’s, corresponding to the estimated information bits carried by the SOI.
--   Filename: `[ID String]_[TestSet Identifier]_estimated_bits_[SOI Type]_[Interference Type].npy`
-    (where ID String will be a unique identifier, e.g., your team name)
-
-For guidance on mapping the SOI signal to the information bits, participants are advised to consult the provided demodulation helper functions (e.g., as used in [notebook/RFC_EvalSet_Demo.ipynb](https://github.com/RFChallenge/rfchallenge_singlechannel_starter_grandchallenge2023/blob/0.2.0/notebook/RFC_EvalSet_Demo.ipynb)).
-
-Submissions should be sent to the organizers at rfchallenge@mit.edu.
-
-_The intellectual property (IP) is not transferred to the challenge organizers; in other words, if code is shared or submitted, the participants retain ownership of their code._
-
-## Starter Code Setup:
-Relevant bash commands to set up the starter code:
-```bash
-git clone https://github.com/RFChallenge/icassp2024rfchallenge.git rfchallenge
-cd rfchallenge
-
-# To obtain the dataset
-wget -O  dataset.zip "https://www.dropbox.com/scl/fi/zlvgxlhp8het8j8swchgg/dataset.zip?rlkey=4rrm2eyvjgi155ceg8gxb5fc4&dl=0"
-unzip  dataset.zip
-rm dataset.zip
-
-# To obtain TestSet1Mixture
-wget -O  TestSet1Mixture.zip  "https://www.dropbox.com/scl/fi/d2kjtfmbh3mgxddbubf80/TestSet1Mixture.zip?rlkey=lwhzt1ayn2bqwosc9o9cq9dwr&dl=0"
-unzip TestSet1Mixture.zip -d dataset
-rm TestSet1Mixture.zip
-```
-
-Dependencies: The organizers have used the following libraries to generate the signal mixtures and test the relevant baseline models
-* python==3.7.13
-* numpy==1.21.6
-* tensorflow==2.8.2
-* sionna==0.10.0
-* tqdm==4.64.0
-* h5py==3.7.0
-
-For a complete overview of the dependencies within our Anaconda environment, please refer [here (rfsionna)](https://github.com/RFChallenge/icassp2024rfchallenge/blob/0.2.0/rfsionna_env.yml). Additionally, if you're interested in the PyTorch-based baseline, you can find the respective Anaconda environment dependencies that the organizers used [here (rftorch)](https://github.com/RFChallenge/icassp2024rfchallenge/blob/0.2.0/rftorch_env.yml).
-
-Since participants are tasked with running their own inference, we are currently not imposing restrictions on the libraries for training and inference. However, the submissions are expected to be in the form of numpy arrays (`.npy` files) that are compatible with our system (`numpy==1.21.6`).
-
-> Note: Diverging from the versions of the dependencies listed above might result in varied behaviors of the starter code. Participants are advised to check for version compatibility in their implementations and solutions.
-
-
-## Helper Functions for Testing:
-
-To assist participants during testing, we provide several example scripts designed to create and test with evaluation sets analogous to TestSet1Mixture.
-
-`python sampletest_testmixture_generator.py [SOI Type] [Interference Type]`
-
-This script generates a new evaluation set (default name: TestSet1Example) based on the raw interference dataset of TestSet1. Participants can employ this for cross-checking. The produced outputs include a mixture numpy array, a metadata numpy array (similar to what's given in TestSet1Mixture), and a ground truth file. Participants can also change the seed number to generate new instances of such example test sets.
-
-(An example generated, named TestSet1Example (using seed_number=0), can be found [here](https://drive.google.com/file/d/1D1rHwEBpDRBVWhBGalEGJ0OzYbBeb4il/view?usp=drive_link).)
-
-
-`python sampletest_tf_unet_inference.py [SOI Type] [Interference Type] [TestSet Identifier]`
-
-`python sampletest_torch_wavenet_inference.py [SOI Type] [Interference Type] [TestSet Identifier]`
-
-(Default: Use TestSet1Example for [TestSet Identifier])
-Scripts that leverage the supplied baseline methods (Modified U-Net on Tensorflow or WaveNet on PyTorch) for inference.
-
-`python sampletest_evaluationscript.py [SOI Type] [Interference Type] [TestSet Identifier] [Method ID String]`
-
-[Method ID String] is your submission's unique identifier---refer to submission specifications.
-Utilize this script to assess the outputs generated from the inference script.
-
-
-## Helper Functions for Training:
-
-For a grasp of the basic functionalities concerning the communication signals (the SOI) and code snippets relating to how we load and extract interference signal windows to create signal mixtures, participants are referred to the RFC_Demo.ipynb in our starter code.
-
-We also provide some reference codes used by the organizers to train the baseline methods. These files include:
-
-1.  Training Dataset Scripts: Used for creating an extensive training set. The shell script file with the relevant commands is included: sampletrain_gendataset_script.sh. Participants can refer to and modify (comment/uncomment) the relevant commands in the shell script. The corresponding python files used can be found in the `dataset_utils` directory and include:
-    -   `example_generate_competition_trainmixture.py`: A python script for generating example mixtures for training; this script creates a training set that is more aligned with the TestSet’s specifications (e.g., focusing solely on the 11 discrete target SINR levels). This script saves a pickle file `dataset/Training_Dataset_[SOI Type]_[Interference Type].pkl'` that contains `all_sig_mixture, all_sig1_groundtruth, all_bits1_groundtruth, meta_data`.
-    -   `example_generate_rfc_mixtures.py`: Another python script that creates 240,000 sample mixtures with varying random target SINR levels (ranging between -33 dB and 3 dB). For each signal mixture configuration, the output is saved as 60 HDF5 files, each containing 4,000 mixtures. This is the organizers' choice when generating the training set (for better generalization properties, while setting aside the metadata for implementation simplicity). 
-    -   `tfds_scripts/Dataset_[SOI Type]_[Interference Type]_Mixture.py`: Used in conjunction with the Tensorflow UNet training scripts; the HDF5 files are processed into Tensorflow Datasets (TFDS) for training.
-    -  ` example_preprocess_npy_dataset.py`: Used in conjunction with the Torch WaveNet training scripts; the HDF5 files are processed into separate npy files (one file per mixture). An associated dataloader is supplied within the PyTorch baseline code.
-    
-2.  Model Training Scripts: The competition organizers have curated two implementations:
-    -   UNet on Tensorflow: `train_unet_model.py`, accompanied with neural network specification in `src/unet_model.py`
-    -   WaveNet on Torch: `train_torchwavenet.py`, accompanied with dependencies including `supervised_config.yml` and `src/configs`, `src/torchdataset.py`, `src/learner_torchwavenet.py`, `src/config_torchwavenet.py` and `src/torchwavenet.py`  
-
-While the provided scripts serve as a starting point, participants have no obligations to utilize them. These files are provided as references to aid those wishing to expand upon or employ the baseline methods. Participants are encouraged to explore other possible strategies for creating training sets from the corresponding InterferenceSet frames and SOI generation functions, as well as more effective ways of utilizing relevant information (e.g., the metadata). 
-
-Trained model weights for the UNet and WaveNet can be obtained here: [reference_models.zip](https://www.dropbox.com/scl/fi/890vztq67krephwyr0whb/reference_models.zip?rlkey=6yct3w8rx183f0l3ok2my6rej&dl=0).
-
-Relevant bash commands:
-```bash
-wget -O  reference_models.zip "https://www.dropbox.com/scl/fi/890vztq67krephwyr0whb/reference_models.zip?rlkey=6yct3w8rx183f0l3ok2my6rej&dl=0"
-unzip  reference_models.zip
-rm reference_models.zip
-```
-
----
-## Available Support Channels:
-*(For the Grand Challenge: September to December 2023)*
-
-As you embark on this challenge, we would like to offer avenues for assistance.
-Below are several channels through which you can reach out to us for help. Our commitment is to foster an environment that aids understanding and collaboration. Your questions, feedback, and concerns are instrumental in ensuring a seamless competition.
-* Discord (Invitation Link): https://discord.gg/4thrZCVsTu
-
-* Github (under the Issues tab): https://github.com/RFChallenge/icassp2024rfchallenge/issues
-
-* Email: rfchallenge@mit.edu
-    >Note: Please be aware that the organizers reserve the right to publicly share email exchanges on any of the above channels. This is done to promote information dissemination and provide clarifications to commonly asked questions.
-
-While we endeavor to offer robust support and timely communication, please understand that our assistance is provided on a "best-effort" basis. We are committed to addressing as many queries and issues as possible, but we may not have solutions to all problems.
-
-Participants are encouraged to utilize the provided channels and collaborate with peers. By participating, you acknowledge and agree that the organizers are not responsible for resolving all issues or ensuring uninterrupted functionality of any tools or platforms. Your understanding and patience are greatly appreciated.
-
----
-### Acknowledgements
-The efforts of the organizers are supported by the United States Air Force Research Laboratory and the United States Air Force Artificial Intelligence Accelerator under Cooperative Agreement Number FA8750-19-2-1000. The views and conclusions contained in this document are those of the authors and should not be interpreted as representing the official policies, either expressed or implied, of the United States Air Force or the U.S. Government.
-
-The organizers acknowledge the MIT SuperCloud and Lincoln Laboratory Supercomputing Center for providing HPC resources that have contributed to the development of this work.
-
----
-### FILE ORG
-U-net:
-train_unet_model.py
-src/unet_model.py
-sampletest_tf_unet_inference.py
----
-tfds_scripts/Dataset_[SOI Type]_[Interference Type]_Mixture.py
-
-WaveNet:
-train_torchwavenet.py
-supervised_config.yml
-src/configs
-src/torchdataset.py
-src/learner_torchwavenet.py
-src/config_torchwavenet.py
-src/torchwavenet.py
----
-example_preprocess_npy_dataset.py
-
-Helper Functions for Training:
-RFC_Demo.ipynb
-example_generate_competition_trainmixture.py
-example_generate_rfc_mixtures.py
-tfds_scripts/Dataset_[SOI Type]_[Interference Type]_Mixture.py
-
-utils:
-sig_utils_fn.py
-rrc_helper_fn.py
-qpsk_helper_fn.py
+## Utility files
+(1). The SOI is generated by the files in the `/rfutils` folder.
+   
+(2). `plot_figure_save_results.py`: calculates the MSE and BER and saves them in a `.npz` file along with pyplots in the `/outputs` folder. Make sure the n_per_sinr matches the one you generated in the testset!
 qpsk2_helper_fn.py
 qam16_helper_fn.py
 ofdm_helper_fn.py
