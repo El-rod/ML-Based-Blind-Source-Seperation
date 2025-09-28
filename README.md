@@ -25,34 +25,42 @@ For generating datasets of signal mixtures, the project used the [RF Challenge I
 
 ## Files for training:
 
-(1) `generate_training_dataset.py`: python script that creates D sample mixtures with varying random target SINR levels (ranging between -33 dB and 3 dB). For each signal mixture configuration, the output is saved as D/n HDF5 files, each containing n mixtures. The project used the default RF Challenge setup of D=240000 and n=4000, making 60 HDF5 files for each mixture dataset. 
+(1) `/dataset_utils/generate_training_dataset.py`: python script that creates D sample mixtures with varying random target SINR levels (ranging between -33 dB and 3 dB). For each signal mixture configuration, the output is saved as D/n HDF5 files, each containing n mixtures. The project used the default RF Challenge setup of D=240000 and n=4000, making 60 HDF5 files for each mixture dataset. 
 ####Note: `n_per_batch` is a misleading variable name, a more suitable one is `n_per_sinr`, but kept for legacy reasons.
 
-(2) `/tfds_scripts/`: each file in this folder preprocesses the training dataset HDF5 files created in (1) into a supervised-learning TensorFlow dataset for the UNet model. See the [note](https://github.com/El-rod/ML-Based-Blind-Source-Seperation/blob/main/dataset_utils/tfds_scripts/NOTE.md) in the folder for more infromation.
+(2) `/dataset_utils/tfds_scripts/`: each file in this folder preprocesses the training dataset HDF5 files created in (1) into a supervised-learning TensorFlow dataset for the UNet model. See the [note](https://github.com/El-rod/ML-Based-Blind-Source-Seperation/blob/main/dataset_utils/tfds_scripts/NOTE.md) in the folder for more infromation.
 
 (3) `train_unet_model.py`: trains the Tensorflow UNet architecture (see `/src/unet_model.py` and `/src/unet_8layered_model.py`) on the tfds dataset created in a file from (2).
 
-(4)  `preprocess_wavenet_training_dataset.py`: Used in conjunction with the Torch WaveNet supervised-learning training scripts; the HDF5 files are processed into separate npy files (one file per mixture). An [associated dataloader](https://github.com/El-rod/ML-Based-Blind-Source-Seperation/blob/main/src/torchdataset.py) is supplied within the PyTorch baseline code.
+(4)  `/dataset_utils/preprocess_wavenet_training_dataset.py`: Used in conjunction with the Torch WaveNet supervised-learning training scripts; the HDF5 files are processed into separate npy files (one file per mixture). An [associated dataloader](https://github.com/El-rod/ML-Based-Blind-Source-Seperation/blob/main/src/torchdataset.py) is supplied within the PyTorch baseline code.
 
 (5) `train_torchwavenet.py`: trains the PyTorch WaveNet architecture (see `/src/torchwavenet.py`), accompanied with dependencies including `supervised_config.yml` and the `/src/configs/` folder,  `src/torchdataset.py` as mentioned in (4), `src/learner_torchwavenet.py`, and `src/config_torchwavenet.py`.
 
 (6) `train_cnn_detector.py`: trains the proof of concept CNN Detector model (see `/src/cnn_detector.py`) on the tfds dataset created in a file from (2).
 
 ## Files for testing
-(1). `generate_mixture_with_uncertainty_testset.py`: generates a testset of a signal mixture with an interference mixture of P(b1)=p, of 11 discrete target SINR levels. Saves a pickle file `Dataset_Seed[seed]_[soi_type]+[interference_type1]∨[interference_type2].pkl` that contains `all_sig_mixture, all_sig1_groundtruth, all_bits1_groundtruth, meta_data`, sorted by SINR levels.
+(1) `/dataset_utils/generate_mixture_testset_IPM.py`: generates a testset of a signal mixture with an interference mixture of P(b1)=p, of 11 discrete target SINR levels. Saves a pickle file `Dataset_Seed[seed]_[soi_type]+[interference_type1]∨[interference_type2].pkl` that contains `all_sig_mixture, all_sig1_groundtruth, all_bits1_groundtruth, meta_data`, sorted by SINR levels.
 
-(2). `generate_mixture_single_interference_testset.py`: same as (1) but for p=1 only, i.e., saves it as `Dataset_Seed[seed_number]_[soi_type]+[interference_sig_type].pkl`.
+(2) `/dataset_utils/generate_mixture_testset_single_interference.py`: same as (1) but for p=1 only, i.e., saves it as `Dataset_Seed[seed_number]_[soi_type]+[interference_sig_type].pkl`.
 
-(3). `evaltest_unet_interference_uncertainty.py`: processes the testset created in (1) on the desired UNet model (DTS, 5L-UJM, UJM), both waveform prediction and BER calculation. Saves results in the `/outputs` folder.
+(3) `evaltest_unet_IPM.py`: processes the testset created in (1) on the desired UNet model (CT-UNet, MT-UNet, 8L-MT-UNet), both waveform prediction and BER calculation. Saves results in the `/outputs` folder.
 
-(4). `evaltest_unet_single_interference.py`: same as (3) but for the testset created in (2). Here interfrence type 2 (p=0) is decided by which 5L-UJM/UJM is chosen.
+(4) `evaltest_unet_1interference.py`: same as (3) but for the testset created in (2). Here interfrence type 2 (p=0) is decided by which MT-UNet/8L-MT-UNet is chosen.
+
+(5) `evaltest_wavenet_IPM.py`: processes the testset created in (1) on the desired WaveNet model (CT-WaveNet, MT-WaveNet), both waveform prediction and BER calculation. Saves results in the `/outputs` folder.
+
+(6) `evaltest_wavenet_1interference.py`: same as (5) but for the testset created in (2). Here interfrence type 2 (p=0) is decided by which MT-WaveNet is chosen.
+
+(7) `evaltest_cnn_detector.py`: contains the function for classifying the testset created in (1) by the CNN Detector into the predicted interference types. Has additional performance testing code similar to `plot_figure_save_results.py`.
 
 ## Utility files
 (1). The SOI is generated by the files in the `/rfutils` folder.
    
-(2). `plot_figure_save_results.py`: calculates the MSE and BER and saves them in a `.npz` file along with pyplots in the `/outputs` folder. Make sure the n_per_sinr matches the one you generated in the testset!
-qpsk2_helper_fn.py
-qam16_helper_fn.py
-ofdm_helper_fn.py
+(2). `plot_figure_save_results.py`: calculates the MSE and BER and saves them in a `.npz` file along with pyplots in the `/outputs` folder. Make sure the n_per_batch matches the one you generated in the testset!
+
+# Project (Code-wise) Contributions
+
+TBA
+
 
 
