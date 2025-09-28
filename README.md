@@ -60,9 +60,10 @@ For generating datasets of signal mixtures, the project used the [RF Challenge I
 
 # Project (Code-wise) Contributions
 
-- Quality of Life Update of the RF Challenge starter code (added thorough documentation, comments in every file, updated the original RF Challenge Anaconda environments to have updated Python libraries versions – including code adjustments).
+- Quality of Life Update of the RF Challenge starter code (added a thorough documentation, comments in every file, fixed some coding errors, updated the original RF Challenge Anaconda environments to have updated Python libraries versions – including code adjustments).
 - Realized code of the proposed CT-DNN model (both oracle-detector and CNN-detector) and MT-DNN model, along with the 8L-MT-UNet variant.
 - Generalized the RF Challenge starter code to both train and evaluate a signal mixture containing two possible interference signal types.
+- Added support for 8PSK and 16PSK (Gray coded) SOI.
 
 
 
