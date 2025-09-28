@@ -1,11 +1,6 @@
-# Starter Code for ICASSP 2024 SP Grand Challenge: Data-Driven Signal Separation in Radio Spectrum
+# Machine-Learning-Based Blind Source Separation
 
 [Click here for details on the challenge setup](https://rfchallenge.mit.edu/wp-content/uploads/2023/09/ICASSP24_single_channel.pdf)
-
-## November 23, 2023 UPDATE: TestSet2Mixture has been released.
-For participants of the ICASSP 2024 SP Grand Challenge for Data-Driven Signal Separation in Radio Spectrum, the final test set for evaluation has been released.
-
-[Click here for TestSet2Mixture files]([https://www.dropbox.com/scl/fi/d2kjtfmbh3mgxddbubf80/TestSet1Mixture.zip?rlkey=lwhzt1ayn2bqwosc9o9cq9dwr&dl=0](https://www.dropbox.com/scl/fi/m36l2imiit5svqz1yz46g/TestSet2Mixture.zip?rlkey=n5mwzi11l55l2xzfw9ee5m0ye&dl=0))
 
 ## About this Repository
 For those eager to dive in, we have prepared a concise guide to get you started.
